@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import StateContextProvider from "@/context/StateCtx";
-import { Inter } from "next/font/google";
+import { unica, raleway } from "@/fonts";
 import "../styles/globals.scss";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASEURL as string),
@@ -14,8 +12,7 @@ export const metadata: Metadata = {
   description: `Hng 11 stage 2 task a `,
   openGraph: {
     title: "Cloud Shop",
-    description:
-      "Hng 11 stage 2 task a ",
+    description: "Hng 11 stage 2 task a ",
     url: process.env.NEXT_PUBLIC_BASEURL,
     siteName: "Cloud Shop",
     locale: "en_US",
@@ -46,7 +43,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <StateContextProvider>
-        <body className={`${inter.className}`}>{children}</body>
+        <body className={`${raleway.className} ${unica.variable}`}>
+          {children}
+        </body>
       </StateContextProvider>
     </html>
   );
