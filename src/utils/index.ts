@@ -81,6 +81,41 @@ const timeAgo = (date: Date): string => {
   return "just now";
 };
 
+/**
+ * Save an object to local storage.
+ *
+ * @param {string} key - The key under which the object will be saved.
+ * @param {T} value - The object to be saved.
+ * @template T - The type of the object.
+ */
+function setObjectToLocalStorage<T>(key: string, value: T): void {
+  try {
+    const serializedValue = JSON.stringify(value);
+    localStorage.setItem(key, serializedValue);
+  } catch (error) {
+    console.error('Error setting object to local storage:', error);
+  }
+}
+
+/**
+ * Get an object from local storage.
+ *
+ * @param {string} key - The key under which the object is stored.
+ * @returns {T | null} - The object if found, otherwise null.
+ * @template T - The type of the object.
+ */
+function getObjectFromLocalStorage<T>(key: string): T | null {
+  try {
+    const serializedValue = localStorage.getItem(key);
+    if (serializedValue === null) {
+      return null;
+    }
+    return JSON.parse(serializedValue) as T;
+  } catch (error) {
+    console.error('Error getting object from local storage:', error);
+    return null;
+  }
+}
 
 
 
@@ -92,6 +127,8 @@ export {
   encryptString,
   decryptString,
   timeAgo,
+  setObjectToLocalStorage,
+  getObjectFromLocalStorage,
 };
 
 

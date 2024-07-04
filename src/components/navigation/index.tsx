@@ -35,6 +35,15 @@ const Navbar = () => {
         }
       )}
     >
+      <Link
+        href="/?path=home"
+        className={cn(
+          " max-sm:w-[120px] max-[450px]:w-[100px] lg:hidden",
+          scrollHeight > 200 ? "w-[120px] " : "w-fit"
+        )}
+      >
+        <Image src="/logo.png" alt="logo" width={155} height={55} />
+      </Link>
       <div className="hidden lg:flex items-center gap-x-5 lg:gap-x-7 2xl:gap-x-10 w-full justify-center max-w-[50%] 2xl:max-w-[40%]">
         {NAV_LINKS.map((link) => (
           <Link
