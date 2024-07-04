@@ -43,7 +43,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <StateContextProvider>
-        <body className={`${raleway.className} ${unica.variable}`}>
+        <body
+          className={`${raleway.className} ${unica.variable} bg-base-white`}
+        >
           {children}
         </body>
       </StateContextProvider>
