@@ -3,6 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { LifeBuoy, Plane, History } from "lucide-react";
+import useMediaQuery from "@/hooks/use-media-query";
 
 const HeroSection = () => {
   return (
@@ -42,7 +44,7 @@ const HeroSection = () => {
               variant="secondary"
               className="text-base tracking-tight md:text-[28px] px-[18px] py-[24px]"
             >
-              Start shopping now{" "}
+              Start shopping now
             </Button>
           </div>
         </div>
@@ -51,4 +53,52 @@ const HeroSection = () => {
   );
 };
 
-export { HeroSection };
+const GranteeSection = () => {
+  const { isTablet, isMobile } = useMediaQuery();
+  return (
+    <section className="container flex items-center justify-between py-4 overflow-hidden">
+      <div className="min-[900px]:h-[120px] min-[500px]:h-[80px] h-[33.51px] [clip-path:polygon(0%_0%,_90%_0%,_100%_50%,_90%_100%,_0%_100%,_0%_0%)] bg-primary  text-base-white rounded-[16px] lg:w-[400px] min-[500px]:w-[300px] w-[133.65px] flex items-center justify-center py-2">
+        <div className="flex lg:min-[900px]:w-[342px] md:w-[250px] w-[95px] min-[900px]:h-[82px] md:h-[50px] h-[25px] items-center justify-center text-[48px] gap-x-2">
+          <Plane size={isMobile ? 24 : isTablet ? 32 : 40} strokeWidth={2} />
+          {/* <Plane size={40} strokeWidth={1} /> */}
+          <div className="flex flex-col text-center">
+            <p className="text-base-white lg:text-4xl md:text-2xl text-base font-unica">
+              Free Shiping
+            </p>
+            <span className="md:text-base lg:text-lg text-sm  font-semibold  text-neutral-300">
+              In Order Min N300,000
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="min-[900px]:h-[120px] h-[33.51px] min-[500px]:h-[80px] [clip-path:polygon(0%_0%,_100%_0%,_90%_50%,_100%_100%,_0%_100%,_10%_50%)] bg-secondary  text-base-white lg:w-[400px] min-[500px]:w-[300px] w-[133.65px] flex items-center justify-center">
+        <div className="flex lg:min-[900px]:w-[342px] md:w-[250px] w-[95px] min-[900px]:h-[82px] md:h-[50px] h-[25px] items-center justify-center text-[48px] gap-x-2">
+          <History size={isMobile ? 24 : isTablet ? 32 : 40} strokeWidth={2} />
+          <div className="flex flex-col text-center">
+            <p className="text-base-white lg:text-3xl md:text-2xl text-base font-unica">
+              30-DAYS RETURN
+            </p>
+            <span className="md:text-base lg:text-lg text-sm  font-semibold  text-neutral-300">
+              Moneyback Guaranteed
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="min-[900px]:h-[120px] h-[33.51px] min-[500px]:h-[80px] [clip-path:polygon(10%_0%,_100%_0%,_100%_50%,_100%_100%,_10%_100%,_0%_50%)] bg-primary  text-base-white rounded-[16px] lg:w-[400px] min-[500px]:w-[300px] w-[133.65px] flex items-center justify-center">
+        <div className="flex lg:min-[900px]:w-[342px] md:w-[250px] w-[95px] min-[900px]:h-[82px] md:h-[50px] h-[25px] items-center justify-center text-[48px] gap-x-2">
+          <LifeBuoy size={isMobile ? 24 : isTablet ? 32 : 40} strokeWidth={2} />
+          <div className="flex flex-col text-center">
+            <p className="text-base-white lg:text-4xl md:text-2xl text-base font-unica">
+              24/7 SUPPORT
+            </p>
+            <span className="md:text-base lg:text-[24px] text-sm  font-semibold  text-neutral-300">
+              Lifeline Support
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export { HeroSection, GranteeSection };

@@ -26,9 +26,9 @@ const Navbar = () => {
   return (
     <nav
       className={cn(
-        " max-[500px]:py-2 flex w-full justify-between items-center  transition-colors duration-500 container",
+        "py-2 md:py-4 lg:py-6 flex w-full justify-between items-center  transition-colors duration-500 container",
         scrollHeight > 200
-          ? " fixed backdrop-blur-xl top-0 left-0  z-50 -translate-y-28 opacity-0 animate-slideDown bg-base-white py-2 shadow-md"
+          ? " fixed backdrop-blur-xl top-0 left-0  z-50 -translate-y-28 opacity-0 animate-slideDown bg-base-white/70 py-2 shadow-md"
           : "sm:py-6 py-4",
         {
           "bg-base-white/60": scrollHeight > 800 && scrollHeight < 4300,
@@ -38,18 +38,24 @@ const Navbar = () => {
       <Link
         href="/?path=home"
         className={cn(
-          " max-sm:w-[120px] max-[450px]:w-[100px] lg:hidden",
+          " max-sm:w-[120px] max-[450px]:w-[100px] min-[900px]:hidden",
           scrollHeight > 200 ? "w-[120px] " : "w-fit"
         )}
       >
-        <Image src="/logo.png" alt="logo" width={155} height={55} />
+        <Image src="/logo.png" alt="logo" width={264} height={118} />
       </Link>
-      <div className="hidden lg:flex items-center gap-x-5 lg:gap-x-7 2xl:gap-x-10 w-full justify-center max-w-[50%] 2xl:max-w-[40%]">
+      <div className="hidden min-[900px]:flex items-center gap-x-5 max-w-[376px]">
         {NAV_LINKS.map((link) => (
           <Link
             href={`/?path=${link.link}`}
             key={link.id}
-            className="text-base capitalize font-medium"
+            className={cn(
+              "text-base capitalize font-semibold",
+              isActive === link.link ? "text-secondary" : "text-primary"
+            )}
+            onClick={() => {
+              setIsActive(link.link);
+            }}
           >
             {link.label}
           </Link>
@@ -58,25 +64,25 @@ const Navbar = () => {
       <Link
         href="/?path=home"
         className={cn(
-          " max-sm:w-[120px] max-[450px]:w-[100px] hidden lg:flex",
+          "hidden max-w-[198px] min-[900px]:flex max-h-[90px]",
           scrollHeight > 200 ? "w-[120px] " : "w-fit"
         )}
       >
-        <Image
-          src="/logo.png"
-          alt="logo"
-          width={155}
-          height={55}
-          className="dark:invert"
-        />
+        <Image src="/logo.png" alt="logo" width={264} height={118} />
       </Link>
-      <div className="hidden lg:flex items-center gap-x-5 lg:gap-x-7 2xl:gap-x-10 w-full justify-center max-w-[50%] 2xl:max-w-[40%]">
-        {ICON_LINK.map((link) => (
-          <Button key={link.id} className="text-primary" variant="ghost">
-            <link.icon size={24} aria-hidden />
-          </Button>
-        ))}
-        <Button asChild className="bg-secondary">
+      <div className="hidden min-[900px]:flex items-center gap-x-3 w-full justify-center max-w-[360px]">
+        <div className="flex gap-x-1">
+          {ICON_LINK.map((link) => (
+            <Button
+              key={link.id}
+              className="text-primary text-base"
+              variant="ghost"
+            >
+              <link.icon aria-hidden />
+            </Button>
+          ))}
+        </div>
+        <Button asChild variant="secondary">
           <Link href="/?paht=shop">Shop</Link>
         </Button>
       </div>
