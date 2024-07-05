@@ -1,11 +1,12 @@
 import React from "react";
-import { HeroSection, GranteeSection } from "./(modules)";
+import { HeroSection, GranteeSection, GallerySection } from "./(modules)";
 
 const page = () => {
   return (
     <>
       <HeroSection />
       <GranteeSection />
+      <GallerySection />
     </>
   );
 };

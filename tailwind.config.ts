@@ -67,8 +67,8 @@ const config = {
         slideNavUp: "slideDown 1s 0.2s ease forwards",
       },
       fontFamily: {
-        raleway: [`var(--font-raleway)`, "monospace"],
-        unica: [`var(--font-unica)`, "monospace"],
+        raleway: [`var(--font-raleway)`, "montserrat"],
+        unica: [`var(--font-unica)`, "montserrat"],
       },
     },
   },

@@ -13,5 +13,25 @@ type IconProps = {
     action: "search" | "profile" | "cart" | "favourite"
 }
 
+type Tabprops = {
+    id: number | string
+    label: string;
+    tab: string
+}
 
-export { NavbarLinkProps, IconProps }
+type ImageCardProps = {
+    src: string;
+    className?: string;
+    width?: number;
+    height?: number;
+    fill?: boolean
+};
+
+type GalleryProps = {
+    id: number | string,
+    src: string;
+
+}
+
+
+export { NavbarLinkProps, IconProps, Tabprops, ImageCardProps, GalleryProps }
