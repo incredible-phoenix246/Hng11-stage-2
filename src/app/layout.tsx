@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import StateContextProvider from "@/context/StateCtx";
+import { Toaster } from "@/components/ui/toaster";
 import { unica, raleway } from "@/fonts";
 import "../styles/globals.scss";
 
@@ -47,6 +48,7 @@ export default function RootLayout({
           className={`${raleway.className} ${unica.variable} bg-base-white`}
         >
           {children}
+          <Toaster />
         </body>
       </StateContextProvider>
     </html>

@@ -1,5 +1,10 @@
 import React from "react";
-import { HeroSection, GranteeSection, GallerySection } from "./(modules)";
+import {
+  HeroSection,
+  GranteeSection,
+  GallerySection,
+  ShopSection,
+} from "./(modules)";
 
 const page = () => {
   return (
@@ -7,6 +12,7 @@ const page = () => {
       <HeroSection />
       <GranteeSection />
       <GallerySection />
+      <ShopSection />
     </>
   );
 };

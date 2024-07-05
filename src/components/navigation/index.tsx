@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useStateCtx } from "@/context/StateCtx";
 import useWindowHeight from "@/hooks/useDimension";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/utils";
 import { NAV_LINKS, ICON_LINK } from "@/constant";
 import Link from "next/link";
@@ -14,7 +14,6 @@ const Navbar = () => {
   const {} = useStateCtx();
   const searchParams = useSearchParams().get("path");
   const scrollHeight = useWindowHeight();
-  const pathname = usePathname();
 
   const [isActive, setIsActive] = useState("");
   useEffect(() => {
@@ -71,7 +70,9 @@ const Navbar = () => {
         <h2 className="uppercase text-pretty text-primary font-unica text-5xl font-semibold">
           fiWears
         </h2>
-        <span className="text-base font-medium">The Home Of Clothings</span>
+        <span className="text-xs font-medium text-nowrap">
+          The Home Of Clothings
+        </span>
       </Link>
       <div className="hidden min-[900px]:flex items-center gap-x-3 w-full justify-center max-w-[360px]">
         <div className="flex gap-x-1">

@@ -5,12 +5,15 @@ import React, { createContext, useContext, useEffect, useMemo } from "react";
 interface StateContextProps {
   showMobileMenu: boolean;
   setShowMobileMenu: React.Dispatch<React.SetStateAction<boolean>>;
+  openDesc: boolean;
+  setOpenDesc: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const StateContext = createContext({} as StateContextProps);
 
 const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [openDesc, setOpenDesc] = React.useState(false);
 
   useEffect(() => {
     if (showMobileMenu) {
@@ -22,6 +25,7 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setShowMobileMenu(false);
+        setOpenDesc(false);
       }
     };
 
@@ -30,7 +34,7 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [showMobileMenu]);
+  }, [showMobileMenu, openDesc]);
 
   useEffect(() => {
     const t = "%c  Made By \ud83d\udc9a  - Phoenix && Remy for HNG11",
@@ -51,8 +55,10 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       showMobileMenu,
       setShowMobileMenu,
+      openDesc,
+      setOpenDesc,
     }),
-    [showMobileMenu]
+    [showMobileMenu, openDesc]
   );
 
   return (
