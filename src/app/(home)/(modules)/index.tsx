@@ -1,13 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
+import useEmblaCarousel from "embla-carousel-react";
+import {
+  PrevButton,
+  NextButton,
+  usePrevNextButtons,
+} from "@/components/slider";
+import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LifeBuoy, Plane, History } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
 import { cn } from "@/utils";
-import { ImageCardProps, Tabprops } from "@/types";
+import { ImageCardProps, Tabprops, ProductCardProps } from "@/types";
 import {
   Sheet,
   SheetContent,
@@ -17,6 +25,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useStateCtx } from "@/context/StateCtx";
+import { dummyProducts } from "@/constant";
 
 const HeroSection = () => {
   return (
@@ -271,12 +280,11 @@ const ShopSection = () => {
   const ShopRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: ShopRef, once: false });
   const [currentTab, setcurrentTab] = useState<String>("men");
-  const { openDesc, setOpenDesc } = useStateCtx();
   return (
     <main
       ref={ShopRef}
       className={cn(
-        "container mt-8",
+        "mt-8",
         isInView
           ? "opacity-100 translate-y-0 md:delay-300 duration-500 mt-7"
           : " opacity-0 translate-y-36"
@@ -292,7 +300,7 @@ const ShopSection = () => {
             Categories Now!
           </span>
         </div>
-        <nav className="mt-6 lg:w-[800px] md:w-[90%] w-[80%] flex border border-primary h-[50px] divide-x-2 divide-primary rounded-[10px] overflow-hidden items-center justify-between object-cover">
+        <nav className="mt-6 lg:w-[800px] md:w-[90%] w-[95%] flex border border-primary h-[50px] divide-x-2 divide-primary rounded-[10px] overflow-hidden items-center justify-between object-cover">
           {tabs.map((tab) => (
             <div
               key={tab.id}
@@ -309,8 +317,236 @@ const ShopSection = () => {
           ))}
         </nav>
       </div>
+      <section className="container flex flex-wrap gap-4 mt-9 items-center justify-center">
+        {dummyProducts.map((pd) => (
+          <ProductCard
+            {...pd}
+            image={`/product/mens/mens-${pd.id}.png`}
+            key={pd.id}
+          />
+        ))}
+      </section>
     </main>
   );
 };
 
-export { HeroSection, GranteeSection, GallerySection, ShopSection };
+const ProductCard = ({
+  discount,
+  rating,
+  name,
+  price,
+  id,
+  image,
+}: ProductCardProps) => {
+  const productCardRef = React.useRef<HTMLDivElement>(null);
+  const isInView = useInView({ ref: productCardRef, once: false });
+  const discountedPrice = price * (1 - discount / 100);
+  const { setSelectedProduct, setOpenDesc } = useStateCtx();
+  return (
+    <div
+      ref={productCardRef}
+      style={{
+        transform: isInView ? "none" : "translateY(100px)",
+        opacity: isInView ? 1 : 0,
+        transition: "transform 0.9s cubic-bezier(0.17, 0.55, 0.55, 1) 0.5s",
+      }}
+      className="w-[350px] h-[625px] rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-md shadow-primary/30 embla__slide"
+    >
+      <div className="w-full relative bg-[#CFD1DF] h-[400px]">
+        <Image
+          src={image}
+          width={350}
+          height={400}
+          className="rounded-2xl object-cover w-full"
+          alt="product"
+        />
+        <div className="ribbon-wrap">
+          <div className="ribbon">{discount}% off </div>
+        </div>
+      </div>
+      <div className="bg-[#E7E8EF] flex flex-col items-center justify-center h-full py-2 gap-1 w-full">
+        <div className="flex w-[114px] items-center justify-center">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <svg
+              key={index}
+              className={cn(
+                "h-[18px] w-[18px] shrink-0",
+                index < rating ? "fill-amber-400" : "fill-gray-300"
+              )}
+              viewBox="0 0 256 256"
+            >
+              <path d="M239.2 97.4A16.4 16.4.0 00224.6 86l-59.4-4.1-22-55.5A16.4 16.4.0 00128 16h0a16.4 16.4.0 00-15.2 10.4L90.4 82.2 31.4 86A16.5 16.5.0 0016.8 97.4 16.8 16.8.0 0022 115.5l45.4 38.4L53.9 207a18.5 18.5.0 007 19.6 18 18 0 0020.1.6l46.9-29.7h.2l50.5 31.9a16.1 16.1.0 008.7 2.6 16.5 16.5.0 0015.8-20.8l-14.3-58.1L234 115.5A16.8 16.8.0 00239.2 97.4z"></path>
+            </svg>
+          ))}
+        </div>
+        <span className="text-primary text-lg">{name}</span>
+        <div className="flex w-[175px] h-[29px] items-center justify-center gap-2 ">
+          <span className="text-primary text-2xl font-medium">
+            &#x20A6;{discountedPrice}
+          </span>
+          <span className="line-through text-base text-[#A0A3BF]">{price}</span>
+        </div>
+        <Button
+          className="w-[281px] h-[60px] text-center text-lg font-medium"
+          variant="secondary"
+          onClick={() => {
+            setSelectedProduct(id);
+            setOpenDesc(true);
+          }}
+        >
+          View Details
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const TopSellingSection = () => {
+  const ShopRef = React.useRef<HTMLDivElement>(null);
+  const isInView = useInView({ ref: ShopRef, once: false });
+
+  const OPTIONS: EmblaOptionsType = { dragFree: true, loop: true };
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(OPTIONS, [Autoplay()]);
+
+  const onNavButtonClick = useCallback((emblaApi: EmblaCarouselType) => {
+    const autoplay = emblaApi?.plugins()?.autoplay;
+    if (!autoplay) return;
+
+    const resetOrStop =
+      autoplay.options.stopOnInteraction === false
+        ? autoplay.reset
+        : autoplay.stop;
+
+    resetOrStop();
+  }, []);
+
+  const {
+    prevBtnDisabled,
+    nextBtnDisabled,
+    onPrevButtonClick,
+    onNextButtonClick,
+  } = usePrevNextButtons(emblaApi, onNavButtonClick);
+
+  return (
+    <main
+      ref={ShopRef}
+      className={cn(
+        "mt-8",
+        isInView
+          ? "opacity-100 translate-y-0 md:delay-300 duration-500 mt-7"
+          : " opacity-0 translate-y-36"
+      )}
+    >
+      <div className="flex flex-col items-center justify-center w-full text-center">
+        <div className="flex flex-col items-center justify-center w-full max-w-[671px]">
+          <h2 className="uppercase text-pretty text-primary font-unica text-3xl md:text-6xl font-semibold">
+            TOP SELLING PRODUCTS
+          </h2>
+          <span className="text-sm md:text-2xl text-primary/80 font-medium">
+            Step into comfort and style with our top-selling wear, a favorite
+            among trendsetters and fashion enthusiasts
+          </span>
+        </div>
+      </div>
+      <section className="container embla mt-9">
+        <section className="embla">
+          <div className="embla__viewport" ref={emblaRef}>
+            <div className="embla__container gap-4 py-3">
+              {dummyProducts.map((pd) => (
+                <ProductCard
+                  {...pd}
+                  image={`/product/mens/mens-${pd.id}.png`}
+                  key={pd.id}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+        <div className="w-full justify-center  flex mt-4 lg:mt-8 gap-x-4">
+          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
+          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
+        </div>
+      </section>
+    </main>
+  );
+};
+
+const TopFeaturedSection = () => {
+  const ShopRef = React.useRef<HTMLDivElement>(null);
+  const isInView = useInView({ ref: ShopRef, once: false });
+  const OPTIONS: EmblaOptionsType = { dragFree: true, loop: true };
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(OPTIONS, [Autoplay()]);
+
+  const onNavButtonClick = useCallback((emblaApi: EmblaCarouselType) => {
+    const autoplay = emblaApi?.plugins()?.autoplay;
+    if (!autoplay) return;
+
+    const resetOrStop =
+      autoplay.options.stopOnInteraction === false
+        ? autoplay.reset
+        : autoplay.stop;
+
+    resetOrStop();
+  }, []);
+
+  const {
+    prevBtnDisabled,
+    nextBtnDisabled,
+    onPrevButtonClick,
+    onNextButtonClick,
+  } = usePrevNextButtons(emblaApi, onNavButtonClick);
+  return (
+    <main
+      ref={ShopRef}
+      className={cn(
+        "mt-8",
+        isInView
+          ? "opacity-100 translate-y-0 md:delay-300 duration-500 mt-7"
+          : " opacity-0 translate-y-36"
+      )}
+    >
+      <div className="flex flex-col items-center justify-center w-full text-center">
+        <div className="flex flex-col items-center justify-center w-full max-w-[671px]">
+          <h2 className="uppercase text-pretty text-primary font-unica text-3xl md:text-6xl font-semibold">
+            TOP FEATURED PRODUCTS
+          </h2>
+          <span className="text-sm md:text-2xl text-primary/80 font-medium">
+            Indulge in the pinnacle of fashion with our top featured product,
+            meticulously crafted to embody sophistication and style
+          </span>
+        </div>
+      </div>
+
+      <section className="container embla mt-9">
+        <section className="embla">
+          <div className="embla__viewport" ref={emblaRef}>
+            <div className="embla__container gap-4 py-3">
+              {dummyProducts.map((pd) => (
+                <ProductCard
+                  {...pd}
+                  image={`/product/mens/mens-${pd.id}.png`}
+                  key={pd.id}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+        <div className="w-full justify-center  flex mt-4 lg:mt-8 gap-x-4">
+          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
+          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
+        </div>
+      </section>
+    </main>
+  );
+};
+
+export {
+  HeroSection,
+  GranteeSection,
+  GallerySection,
+  ShopSection,
+  TopSellingSection,
+  TopFeaturedSection,
+};

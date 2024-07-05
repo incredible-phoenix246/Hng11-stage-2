@@ -4,6 +4,8 @@ import {
   GranteeSection,
   GallerySection,
   ShopSection,
+  TopSellingSection,
+  TopFeaturedSection,
 } from "./(modules)";
 
 const page = () => {
@@ -13,6 +15,8 @@ const page = () => {
       <GranteeSection />
       <GallerySection />
       <ShopSection />
+      <TopSellingSection />
+      <TopFeaturedSection />
     </>
   );
 };

@@ -7,6 +7,8 @@ interface StateContextProps {
   setShowMobileMenu: React.Dispatch<React.SetStateAction<boolean>>;
   openDesc: boolean;
   setOpenDesc: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedProduct: string | number;
+  setSelectedProduct: React.Dispatch<React.SetStateAction<string | number>>;
 }
 
 export const StateContext = createContext({} as StateContextProps);
@@ -14,6 +16,9 @@ export const StateContext = createContext({} as StateContextProps);
 const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [openDesc, setOpenDesc] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState<string | number>(
+    ""
+  );
 
   useEffect(() => {
     if (showMobileMenu) {
@@ -57,8 +62,10 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
       setShowMobileMenu,
       openDesc,
       setOpenDesc,
+      selectedProduct,
+      setSelectedProduct,
     }),
-    [showMobileMenu, openDesc]
+    [showMobileMenu, openDesc, selectedProduct]
   );
 
   return (

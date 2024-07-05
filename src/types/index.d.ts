@@ -33,5 +33,17 @@ type GalleryProps = {
 
 }
 
+interface ProductCardProps {
+    id: number | string;
+    image: string
+    rating: number
+    name: string
+    desc: string
+    category: string
+    price: number
+    discount: number
+    sizes?: ("2xl" | "xl" | "lg" | "md" | "sm")[];
+}
 
-export { NavbarLinkProps, IconProps, Tabprops, ImageCardProps, GalleryProps }
+
+export { NavbarLinkProps, IconProps, Tabprops, ImageCardProps, GalleryProps, ProductCardProps }

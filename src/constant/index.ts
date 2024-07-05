@@ -1,5 +1,4 @@
-import { NavbarLinkProps, IconProps } from "@/types";
-import { profile } from "console";
+import { NavbarLinkProps, IconProps, ProductCardProps } from "@/types";
 import { ShoppingCart, Heart, Profile, SearchNormal1 } from "iconsax-react"
 
 const NAV_LINKS: NavbarLinkProps[] = [
@@ -16,4 +15,137 @@ const ICON_LINK: IconProps[] = [
     { id: 4, icon: ShoppingCart, action: "cart" }
 ]
 
-export { NAV_LINKS, ICON_LINK }
+
+
+const dummyProducts: ProductCardProps[] = [
+    {
+        id: 1,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 4,
+        name: 'Men\'s Jacket',
+        desc: 'Stylish and warm jacket for men.',
+        category: 'men',
+        price: 5000,
+        discount: 20,
+        sizes: ['lg', 'xl'],
+    },
+    {
+        id: 2,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 5,
+        name: 'Women\'s Dress',
+        desc: 'Elegant evening dress for women.',
+        category: 'women',
+        price: 5000,
+        discount: 25,
+        sizes: ['md', 'lg'],
+    },
+    {
+        id: 3,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 3,
+        name: 'Kids\' T-Shirt',
+        desc: 'Comfortable and colorful T-shirt for kids.',
+        category: 'kids',
+        price: 10000,
+        discount: 10,
+        sizes: ['sm', 'md'],
+    },
+    {
+        id: 4,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 4,
+        name: 'Leather Wallet',
+        desc: 'High-quality leather wallet with multiple compartments.',
+        category: 'accessories',
+        price: 10000,
+        discount: 15,
+    },
+    {
+        id: 5,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 5,
+        name: 'Running Shoes',
+        desc: 'Lightweight and durable running shoes.',
+        category: 'shoes',
+        price: 50000,
+        discount: 30,
+        sizes: ['xl', '2xl'],
+    },
+    {
+        id: 6,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 4,
+        name: 'Handbag',
+        desc: 'Elegant and spacious handbag for all occasions.',
+        category: 'bags',
+        price: 10000,
+        discount: 20,
+    },
+    {
+        id: 7,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 5,
+        name: 'Men\'s Trousers',
+        desc: 'Comfortable and stylish trousers for men.',
+        category: 'men',
+        price: 8000,
+        discount: 15,
+        sizes: ['md', 'lg', 'xl'],
+    },
+    {
+        id: 8,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 4,
+        name: 'Women\'s Blouse',
+        desc: 'Light and elegant blouse for women.',
+        category: 'women',
+        price: 95000,
+        discount: 10,
+        sizes: ['sm', 'md', 'lg'],
+    },
+    {
+        id: 9,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 4,
+        name: 'Kids\' Shorts',
+        desc: 'Cool and comfortable shorts for kids.',
+        category: 'kids',
+        price: 15000,
+        discount: 5,
+        sizes: ['sm', 'md'],
+    },
+    {
+        id: 10,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 5,
+        name: 'Sunglasses',
+        desc: 'Stylish and protective sunglasses.',
+        category: 'accessories',
+        price: 10000,
+        discount: 20,
+    },
+    {
+        id: 11,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 3,
+        name: 'Casual Shoes',
+        desc: 'Comfortable casual shoes for everyday wear.',
+        category: 'shoes',
+        price: 4500,
+        discount: 15,
+        sizes: ['md', 'lg', 'xl'],
+    },
+    {
+        id: 12,
+        image: 'https://via.placeholder.com/350x400',
+        rating: 4,
+        name: 'Backpack',
+        desc: 'Durable and spacious backpack for all purposes.',
+        category: 'bags',
+        price: 5000,
+        discount: 10,
+    },
+]
+
+export { NAV_LINKS, ICON_LINK, dummyProducts }

@@ -3,6 +3,7 @@ import StateContextProvider from "@/context/StateCtx";
 import { Toaster } from "@/components/ui/toaster";
 import { unica, raleway } from "@/fonts";
 import "../styles/globals.scss";
+import "../styles/slider.scss";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASEURL as string),
