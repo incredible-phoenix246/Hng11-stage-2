@@ -8,20 +8,21 @@ import "../styles/slider.scss";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASEURL as string),
   title: {
-    default: "Cloud Shop",
+    default: "FiWears",
     template: `%s | Cloud shop`,
   },
-  description: `Hng 11 stage 2 task a `,
+  description: `Welcome to FiWears, where fashion meets function. Explore our curated collection of clothing, bags, shoes, and glasses. From timeless classics to trendy must-haves, we’ve got you covered.`,
   openGraph: {
-    title: "Cloud Shop",
-    description: "Hng 11 stage 2 task a ",
+    title: "FiWears",
+    description:
+      "Welcome to FiWears, where fashion meets function. Explore our curated collection of clothing, bags, shoes, and glasses. From timeless classics to trendy must-haves, we’ve got you covered.",
     url: process.env.NEXT_PUBLIC_BASEURL,
-    siteName: "Cloud Shop",
+    siteName: "FiWears",
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    title: "Cloud Shop",
+    title: "FiWears",
     card: "summary_large_image",
   },
   robots: {

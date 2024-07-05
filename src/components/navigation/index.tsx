@@ -9,6 +9,13 @@ import { NAV_LINKS, ICON_LINK } from "@/constant";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import {
+  FaThreads,
+  FaXTwitter,
+  FaInstagram,
+  FaWhatsapp,
+} from "react-icons/fa6";
+import { FiFacebook } from "react-icons/fi";
 
 const Navbar = () => {
   const {} = useStateCtx();
@@ -94,4 +101,22 @@ const Navbar = () => {
   );
 };
 
-export { Navbar };
+const Footer = () => {
+  return (
+    <footer className="container flex flex-col md:flex-row items-center justify-between bg-[#242535]">
+      <div className="flex items-center flex-col gap-2">
+        <div>
+          <h2 className="uppercase text-pretty text-primary font-unica text-5xl font-semibold">
+            fiWears
+          </h2>
+          <span className="text-xs font-medium text-nowrap">
+            The Home Of Clothings
+          </span>
+        </div>
+        <div></div>
+      </div>
+    </footer>
+  );
+};
+
+export { Navbar, Footer };

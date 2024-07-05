@@ -16,14 +16,7 @@ import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
 import { cn } from "@/utils";
 import { ImageCardProps, Tabprops, ProductCardProps } from "@/types";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useStateCtx } from "@/context/StateCtx";
 import { dummyProducts } from "@/constant";
 
@@ -542,6 +535,19 @@ const TopFeaturedSection = () => {
   );
 };
 
+const ProductDetails = () => {
+  const { isMobile } = useMediaQuery();
+  const { openDesc, setOpenDesc } = useStateCtx();
+  return (
+    <Sheet open={openDesc} onOpenChange={setOpenDesc}>
+      <SheetContent
+        className="w-full z-[150]"
+        side={isMobile ? "bottom" : "right"}
+      ></SheetContent>
+    </Sheet>
+  );
+};
+
 export {
   HeroSection,
   GranteeSection,
@@ -549,4 +555,5 @@ export {
   ShopSection,
   TopSellingSection,
   TopFeaturedSection,
+  ProductDetails
 };
