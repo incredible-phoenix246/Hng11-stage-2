@@ -33,3 +33,15 @@
   justify-content: center;
   cursor: pointer;
 }
+
+@media (max-width: 1024px) {
+  .embla {
+    --slide-size: 50%;
+  }
+}
+
+@media (max-width: 640px) {
+  .embla {
+    --slide-size: 80%;
+  }
+}

@@ -449,7 +449,7 @@ const TopSellingSection = () => {
           </span>
         </div>
       </div>
-      <section className="container embla mt-9">
+      <section className="md:container embla mt-9">
         <section className="embla">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container gap-4 py-3">
@@ -519,7 +519,7 @@ const TopFeaturedSection = () => {
         </div>
       </div>
 
-      <section className="container embla mt-9">
+      <section className="md:container embla mt-9">
         <section className="embla">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container gap-4 py-3">
