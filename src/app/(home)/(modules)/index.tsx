@@ -19,6 +19,8 @@ import { ImageCardProps, Tabprops, ProductCardProps } from "@/types";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useStateCtx } from "@/context/StateCtx";
 import { dummyProducts } from "@/constant";
+import { setObjectToLocalStorage, getObjectFromLocalStorage } from "@/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 const HeroSection = () => {
   return (
@@ -147,7 +149,7 @@ const GallerySection = () => {
           </span>
         </div>
         <div className="lg:w-[45%] flex">
-          {tabs.slice(0, 5).map((tab) => (
+          {tabs.slice(1, 5).map((tab) => (
             <Button
               variant="ghost"
               key={tab.id}
@@ -261,6 +263,7 @@ const LargeImageCard = ({
 );
 
 const tabs: Tabprops[] = [
+  { id: 7, label: "all", tab: "all" },
   { id: 1, label: "men", tab: "men" },
   { id: 2, label: "women", tab: "women" },
   { id: 3, label: "kids", tab: "kids" },
@@ -272,7 +275,12 @@ const tabs: Tabprops[] = [
 const ShopSection = () => {
   const ShopRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: ShopRef, once: false });
-  const [currentTab, setcurrentTab] = useState<String>("men");
+  const [currentTab, setcurrentTab] = useState<String>("all");
+
+  const filteredProducts =
+    currentTab === "all"
+      ? dummyProducts
+      : dummyProducts.filter((product) => product.category === currentTab);
   return (
     <main
       ref={ShopRef}
@@ -301,7 +309,7 @@ const ShopSection = () => {
               className={cn(
                 "text-center items-center justify-center flex w-full cursor-pointer h-full font-semibold text-xs md:text-base capitalize",
                 currentTab === tab.tab
-                  ? "text-secondary bg-primary"
+                  ? "text-base-white bg-primary"
                   : "text-secondary"
               )}
             >
@@ -311,12 +319,8 @@ const ShopSection = () => {
         </nav>
       </div>
       <section className="container flex flex-wrap gap-4 mt-9 items-center justify-center">
-        {dummyProducts.map((pd) => (
-          <ProductCard
-            {...pd}
-            image={`/product/mens/mens-${pd.id}.png`}
-            key={pd.id}
-          />
+        {filteredProducts.map((pd) => (
+          <ProductCard {...pd} key={pd.id} />
         ))}
       </section>
     </main>
@@ -330,6 +334,7 @@ const ProductCard = ({
   price,
   id,
   image,
+  category,
 }: ProductCardProps) => {
   const productCardRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: productCardRef, once: false });
@@ -347,10 +352,10 @@ const ProductCard = ({
     >
       <div className="w-full relative bg-[#CFD1DF] h-[400px]">
         <Image
-          src={image}
+          src={`/product/${category}/${id}.png`}
           width={350}
           height={400}
-          className="rounded-2xl object-cover w-full"
+          className="rounded-t-2xl object-cover w-full max-w-[350] max-h-[400]"
           alt="product"
         />
         <div className="ribbon-wrap">
@@ -447,11 +452,7 @@ const TopSellingSection = () => {
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container gap-4 py-3">
               {dummyProducts.map((pd) => (
-                <ProductCard
-                  {...pd}
-                  image={`/product/mens/mens-${pd.id}.png`}
-                  key={pd.id}
-                />
+                <ProductCard {...pd} key={pd.id} />
               ))}
             </div>
           </div>
@@ -517,11 +518,7 @@ const TopFeaturedSection = () => {
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container gap-4 py-3">
               {dummyProducts.map((pd) => (
-                <ProductCard
-                  {...pd}
-                  image={`/product/mens/mens-${pd.id}.png`}
-                  key={pd.id}
-                />
+                <ProductCard {...pd} key={pd.id} />
               ))}
             </div>
           </div>
@@ -537,17 +534,75 @@ const TopFeaturedSection = () => {
 
 const ProductDetails = () => {
   const { isMobile } = useMediaQuery();
-  const { openDesc, setOpenDesc } = useStateCtx();
+  const { openDesc, setOpenDesc, selectedProduct } = useStateCtx();
+
+  const selectedProductDetails = dummyProducts.find(
+    (p) => p.id === selectedProduct
+  );
+
+  if (!selectedProductDetails) {
+    return;
+  }
+
+  const { toast } = useToast();
+
+  const cart = getObjectFromLocalStorage<ProductCardProps[]>("cart") || [];
+
+  const addToCart = (product: ProductCardProps) => {
+    const updatedCart = [...cart, product];
+    setObjectToLocalStorage("cart", updatedCart);
+    setOpenDesc(false);
+    toast({
+      title: "Add to cart",
+      description: "Item added to cart successfully",
+    });
+  };
+
   return (
     <Sheet open={openDesc} onOpenChange={setOpenDesc}>
       <SheetContent
-        className="w-full z-[150]"
+        className={cn(
+          "w-full z-[150] overflow-hidden overflow-y-auto",
+          isMobile &&
+            "rounded-t-2xl max-h-[70vh] overflow-hidden overflow-y-auto"
+        )}
         side={isMobile ? "bottom" : "right"}
-      ></SheetContent>
+      >
+        <div className="w-full items-center justify-center flex flex-col">
+          <Image
+            src={`/product/${selectedProductDetails.category}/${selectedProductDetails.id}.png`}
+            width={350}
+            height={400}
+            className="rounded-2xl object-cover w-full float-start max-h-[400px]"
+            alt="product"
+          />
+          <h2 className="text-xl font-medium capitalize mt-5">
+            {selectedProductDetails.name}
+          </h2>
+          <p className="text-sm font-normal">{selectedProductDetails.desc}</p>
+        </div>
+        <div className="mt-2 flex w-full items-center justify-center">
+          {selectedProductDetails.sizes && (
+            <div className="flex w-full items-center justify-between mx-auto max-w-[100px]">
+              {selectedProductDetails.sizes.map((size) => (
+                <Button key={size} variant="secondary">
+                  {size}
+                </Button>
+              ))}
+            </div>
+          )}
+          <Button
+            className="w-[215px] h-[62px] text-center mt-4"
+            variant="secondary"
+            onClick={() => addToCart(selectedProductDetails)}
+          >
+            Add To Cart
+          </Button>
+        </div>
+      </SheetContent>
     </Sheet>
   );
 };
-
 export {
   HeroSection,
   GranteeSection,
@@ -555,5 +610,5 @@ export {
   ShopSection,
   TopSellingSection,
   TopFeaturedSection,
-  ProductDetails
+  ProductDetails,
 };
