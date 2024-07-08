@@ -16,7 +16,12 @@ import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
 import { cn } from "@/utils";
 import { ImageCardProps, Tabprops, ProductCardProps } from "@/types";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useStateCtx } from "@/context/StateCtx";
 import { dummyProducts } from "@/constant";
 import { setObjectToLocalStorage, getObjectFromLocalStorage } from "@/utils";
@@ -535,6 +540,7 @@ const TopFeaturedSection = () => {
 const ProductDetails = () => {
   const { isMobile } = useMediaQuery();
   const { openDesc, setOpenDesc, selectedProduct } = useStateCtx();
+  const { toast } = useToast();
 
   const selectedProductDetails = dummyProducts.find(
     (p) => p.id === selectedProduct
@@ -544,18 +550,12 @@ const ProductDetails = () => {
     return;
   }
 
-  const { toast } = useToast();
-
   const cart = getObjectFromLocalStorage<ProductCardProps[]>("cart") || [];
 
   const addToCart = (product: ProductCardProps) => {
     const updatedCart = [...cart, product];
     setObjectToLocalStorage("cart", updatedCart);
     setOpenDesc(false);
-    toast({
-      title: "Add to cart",
-      description: "Item added to cart successfully",
-    });
   };
 
   return (
@@ -568,7 +568,10 @@ const ProductDetails = () => {
         )}
         side={isMobile ? "bottom" : "right"}
       >
-        <div className="w-full items-center justify-center flex flex-col">
+        <SheetHeader>
+          <SheetTitle>Product Details</SheetTitle>
+        </SheetHeader>
+        <div className="w-full items-center justify-center flex flex-col mb-5">
           <Image
             src={`/product/${selectedProductDetails.category}/${selectedProductDetails.id}.png`}
             width={350}
@@ -583,7 +586,7 @@ const ProductDetails = () => {
         </div>
         <div className="mt-2 flex w-full items-center justify-center">
           {selectedProductDetails.sizes && (
-            <div className="flex w-full items-center justify-between mx-auto max-w-[100px]">
+            <div className="flex w-full items-center justify-between mx-auto max-w-[200px]">
               {selectedProductDetails.sizes.map((size) => (
                 <Button key={size} variant="secondary">
                   {size}
@@ -591,10 +594,18 @@ const ProductDetails = () => {
               ))}
             </div>
           )}
+        </div>
+        <div className="flex w-full items-center justify-center mt-4">
           <Button
             className="w-[215px] h-[62px] text-center mt-4"
             variant="secondary"
-            onClick={() => addToCart(selectedProductDetails)}
+            onClick={() => {
+              addToCart(selectedProductDetails);
+              toast({
+                title: "Product added to cart",
+                description: `${selectedProductDetails.name} has been added to cart`,
+              });
+            }}
           >
             Add To Cart
           </Button>
