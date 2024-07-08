@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useStateCtx } from "@/context/StateCtx";
 import useWindowHeight from "@/hooks/useDimension";
 import { useSearchParams } from "next/navigation";
-import { cn } from "@/utils";
+import { cn, getObjectFromLocalStorage } from "@/utils";
 import { NAV_LINKS, ICON_LINK } from "@/constant";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,11 +17,13 @@ import {
 } from "react-icons/fa6";
 import { FiFacebook } from "react-icons/fi";
 import { ArrowRight } from "iconsax-react";
+import { ProductCardProps } from "@/types";
 
 const Navbar = () => {
   const {} = useStateCtx();
   const searchParams = useSearchParams().get("path");
   const scrollHeight = useWindowHeight();
+  const [cart, setCart] = useState<number>(0);
 
   const [isActive, setIsActive] = useState("");
   useEffect(() => {
@@ -30,6 +32,40 @@ const Navbar = () => {
       return;
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const updateCart = () => {
+      const cart = getObjectFromLocalStorage<ProductCardProps[]>("cart");
+      if (cart) {
+        setCart(cart.length);
+      }
+    };
+
+    updateCart();
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "cart") {
+        updateCart();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    const handleLocalStorageUpdate = () => {
+      updateCart();
+    };
+
+    window.addEventListener("localStorageUpdate", handleLocalStorageUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener(
+        "localStorageUpdate",
+        handleLocalStorageUpdate
+      );
+    };
+  }, []);
+
   return (
     <nav
       className={cn(
@@ -83,14 +119,21 @@ const Navbar = () => {
         </span>
       </Link>
       <div className="hidden min-[900px]:flex items-center gap-x-3 w-full justify-center max-w-[360px]">
-        <div className="flex gap-x-1">
+        <div className="flex gap-x-1 relative">
           {ICON_LINK.map((link) => (
             <Button
               key={link.id}
-              className="text-primary text-base"
+              className="text-primary text-base relative"
               variant="ghost"
             >
-              <link.icon aria-hidden />
+              <span className="">
+                <link.icon aria-hidden />
+              </span>
+              {link.action === "cart" && (
+                <span className="absolute top-[2px] right-[2px] text-xs font-medium text-secondary">
+                  {cart}
+                </span>
+              )}
             </Button>
           ))}
         </div>
@@ -104,8 +147,8 @@ const Navbar = () => {
 
 const Footer = () => {
   return (
-    <footer className="flex flex-col md:flex-row items-center justify-between bg-[#242535] gap-3 px-4 sm:px-8 xl:px-16 2xl:px-24 text-secondary h-[392px] py-3">
-      <div className="flex items-start gap-y-5  flex-col gap-2 w-full md:w-[30%]">
+    <footer className="flex flex-col md:flex-row items-center justify-between bg-[#242535] px-4 sm:px-8 xl:px-16 2xl:px-24 text-secondary md:h-[392px] py-3">
+      <div className="flex items-center md:items-start gap-y-5  flex-col gap-2 w-full md:max-w-[30%]">
         <div>
           <h2 className="uppercase text-pretty text-primary font-unica text-5xl font-semibold">
             fiWears
@@ -114,7 +157,7 @@ const Footer = () => {
             The Home Of Clothings
           </span>
         </div>
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center gap-1 w-full">
           {social.map((sc) => (
             <Link
               key={sc.id}
@@ -126,8 +169,8 @@ const Footer = () => {
           ))}
         </div>
       </div>
-      <div className="flex items-center justify-center flex-col gap-2 w-full md:w-[40%] gap-y-5">
-        <div className="flex items-center justify-center w-full text-lg">
+      <div className="flex items-center justify-center flex-col gap-2 w-full md:max-w-[40%] gap-y-5 text-center">
+        <div className="flex items-center justify-center w-full text-lg gap-1">
           <span>Men</span>
           <span>Women</span>
           <span>Kids</span>
@@ -141,7 +184,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="flex items-start gap-y-5  flex-col gap-2 w-full md:w-[30%]">
+      <div className="flex items-center md:items-start gap-y-5  flex-col gap-2 w-full max-w-[30%]">
         <h2 className="w-full text-2xl font-semibold leading-7 text-emerald-100">
           Subscribe to our Newsletter
         </h2>
@@ -153,17 +196,17 @@ const Footer = () => {
             type="email"
             id="email"
             placeholder="Email..."
-            className="flex-grow w-full justify-center items-start px-3 py-3.5 rounded border-2 border-emerald-100 border-solid bg-slate-600"
+            className="w-[296px] justify-center items-start px-3 py-3.5 rounded border-2 border-emerald-100 border-solid bg-slate-600"
           />
           <button
             type="submit"
             aria-label="Subscribe"
-            className="bg-secondary w-[38px] h-[38px]"
+            className="bg-secondary w-[38px] px-3 py-3.5"
           >
-            <ArrowRight size="32" color="#FFF" />
+            <ArrowRight color="#FFF" />
           </button>
         </form>
-        <div className="flex gap-5 justify-between px-5 w-full">
+        <div className="flex justify-between w-full">
           <Image src="/monie.png" alt="" width={45} height={45} />
           <Image src="/fluter.png" alt="" width={45} height={45} />
           <Image src="/vec.png" alt="" width={45} height={45} />

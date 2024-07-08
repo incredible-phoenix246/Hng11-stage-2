@@ -15,7 +15,7 @@ import { LifeBuoy, Plane, History } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
 import { cn } from "@/utils";
-import { ImageCardProps, Tabprops, ProductCardProps } from "@/types";
+import { ImageCardProps, Tabprops, ProductCardProps, CartItem } from "@/types";
 import {
   Sheet,
   SheetContent,
@@ -550,12 +550,32 @@ const ProductDetails = () => {
     return;
   }
 
-  const cart = getObjectFromLocalStorage<ProductCardProps[]>("cart") || [];
+  const cart = getObjectFromLocalStorage<CartItem[]>("cart") || [];
 
-  const addToCart = (product: ProductCardProps) => {
-    const updatedCart = [...cart, product];
-    setObjectToLocalStorage("cart", updatedCart);
+  const addToCart = (product: ProductCardProps, size?: CartItem["size"]) => {
+    const existingItemIndex = cart.findIndex(
+      (item) => item.id === product.id && item.size === size
+    );
+
+    if (existingItemIndex !== -1) {
+      cart[existingItemIndex].quantity += 1;
+    } else {
+      const newItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        size: size,
+        quantity: 1,
+      };
+      cart.push(newItem);
+    }
+
+    setObjectToLocalStorage("cart", cart);
     setOpenDesc(false);
+
+    const event = new Event("localStorageUpdate");
+    window.dispatchEvent(event);
   };
 
   return (
@@ -588,7 +608,17 @@ const ProductDetails = () => {
           {selectedProductDetails.sizes && (
             <div className="flex w-full items-center justify-between mx-auto max-w-[200px]">
               {selectedProductDetails.sizes.map((size) => (
-                <Button key={size} variant="secondary">
+                <Button
+                  key={size}
+                  variant="secondary"
+                  onClick={() => {
+                    addToCart(selectedProductDetails, size);
+                    toast({
+                      title: "Product added to cart",
+                      description: `${selectedProductDetails.name} has been added to cart`,
+                    });
+                  }}
+                >
                   {size}
                 </Button>
               ))}

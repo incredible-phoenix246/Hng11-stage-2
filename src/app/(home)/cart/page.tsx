@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import { GranteeSection } from "../(modules)";
 
 const page = () => {
   return (
-    <div>page</div>
-  )
-}
+    <>
+      <GranteeSection />
+    </>
+  );
+};
 
-export default page
+export default page;
