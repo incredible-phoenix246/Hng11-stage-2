@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { LifeBuoy, Plane, History } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
-import { cn } from "@/utils";
+import { cn, decreaseQuantity, increaseQuantity, removeItem } from "@/utils";
 import { ImageCardProps, Tabprops, ProductCardProps, CartItem } from "@/types";
 import {
   Sheet,
@@ -26,6 +26,15 @@ import { useStateCtx } from "@/context/StateCtx";
 import { dummyProducts } from "@/constant";
 import { setObjectToLocalStorage, getObjectFromLocalStorage } from "@/utils";
 import { useToast } from "@/components/ui/use-toast";
+import { useSearchParams } from "next/navigation";
+import {
+  Add,
+  ArrowLeft2,
+  ArrowRight2,
+  CloseCircle,
+  Minus,
+} from "iconsax-react";
+import Link from "next/link";
 
 const HeroSection = () => {
   return (
@@ -567,6 +576,7 @@ const ProductDetails = () => {
         price: product.price,
         size: size,
         quantity: 1,
+        discount: product.discount,
       };
       cart.push(newItem);
     }
@@ -644,6 +654,173 @@ const ProductDetails = () => {
     </Sheet>
   );
 };
+
+const CartPage = () => {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const searchParams = useSearchParams().get("path");
+  useEffect(() => {
+    const getCart = () => {
+      const cart = getObjectFromLocalStorage<CartItem[]>("cart");
+      if (cart) {
+        setCart(cart);
+      }
+    };
+
+    getCart();
+
+    const handleLocalStorageUpdate = () => {
+      getCart();
+    };
+
+    window.addEventListener("localStorageUpdate", handleLocalStorageUpdate);
+    return () => {
+      window.removeEventListener(
+        "localStorageUpdate",
+        handleLocalStorageUpdate
+      );
+    };
+  }, []);
+  const isCart = searchParams === "cart";
+
+  const fetchCart = () => {
+    const cart = getObjectFromLocalStorage<CartItem[]>("cart");
+    if (cart) {
+      setCart(cart);
+    }
+  };
+
+  const calculateSubtotal = () => {
+    return cart.reduce(
+      (acc, item) => {
+        const itemTotal =
+          (item.price - (item.price * item.discount) / 100) * item.quantity;
+        acc.totalPrice += itemTotal;
+        acc.totalQuantity += item.quantity;
+        return acc;
+      },
+      { totalPrice: 0, totalQuantity: 0 }
+    );
+  };
+
+  const { totalPrice, totalQuantity } = calculateSubtotal();
+
+  return (
+    <section className="container flex flex-col">
+      <div className="mt-5 flex items-center text-lg gap-0.5 ">
+        <h2 className="text-lg capitalize text-primary">Home</h2>
+        <ArrowRight2 />
+        <h2 className={cn("text-lg capitalize", isCart && "text-secondary")}>
+          {searchParams}
+        </h2>
+      </div>
+      <div className="flex flex-col md:flex-row items-center justify-evenly">
+        {/* cart section */}
+        <div className="flex flex-col md:w-1/2 w-full">
+          <div className="flex w-full justify-between capitalize p-2 border-b border-primary text-base">
+            <div className="w-1/2">
+              <h2 className="text-2xl">Shopping Cart</h2>
+            </div>
+            <span>item</span>
+            <span> quantity</span>
+            <span>price</span>
+          </div>
+
+          {cart?.length > 0 ? (
+            <div className="flex flex-col divide-y divide-primary w-full">
+              {cart?.map((cart) => (
+                <div
+                  key={cart.id}
+                  className="flex w-full justify-between items-center h-[140px]"
+                >
+                  <div className="flex items-center justify-center gap-0.5">
+                    <button
+                      className="text-center text-red-500"
+                      onClick={() => {
+                        removeItem(cart.id);
+                        fetchCart();
+                      }}
+                    >
+                      <CloseCircle />
+                    </button>
+                    <Image
+                      src={`/product/${cart.category}/${cart.id}.png`}
+                      width={75}
+                      height={100}
+                      className="object-cover"
+                      alt="product"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-pretty capitalize text-2xl">
+                      {cart.name}
+                    </p>
+                    <span className="text-red-500 text-xs">29 unit left</span>
+                    {cart.size && (
+                      <span className="text-sm">Size: {cart.size}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button
+                      className="text-center text-primary items-center"
+                      onClick={() => {
+                        decreaseQuantity(cart.id, cart.size);
+                        fetchCart();
+                      }}
+                    >
+                      <Minus />
+                    </button>
+                    <span className="text-center text-lg">{cart.quantity}</span>
+                    <button
+                      className="text-center text-red-500"
+                      onClick={() => {
+                        increaseQuantity(cart.id, cart.size);
+                        fetchCart();
+                      }}
+                    >
+                      <Add />
+                    </button>
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-xl text-primary">
+                      {((cart.price * cart.discount) / 100) * cart.quantity}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="h-0.5 bg-primary w-full" />
+              <div className="flex items-center justify-end py-5">
+                <span className="text-2xl font-unica">
+                  Subtotal: {totalQuantity}, &#x20A6;{totalPrice}
+                </span>
+              </div>
+              <div className="h-0.5 bg-primary w-full" />
+              <div className="flex w-full items-center justify-between mt-5">
+                <Button asChild variant="ghost" className="w-[150px] shadow-md">
+                  <Link href="/?path=home">
+                    <ArrowLeft2 />
+                    continue shoping
+                  </Link>
+                </Button>
+                <span className="text-lg uppercase font-unica font-semibold">
+                  Total
+                </span>
+                <span className="text-lg uppercase font-unica font-semibold">
+                  &#x20A6;{totalPrice}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center w-full h-full">
+              your cart is empty start shoping
+            </div>
+          )}
+        </div>
+
+        {/* checkout section */}
+      </div>
+    </section>
+  );
+};
 export {
   HeroSection,
   GranteeSection,
@@ -652,4 +829,173 @@ export {
   TopSellingSection,
   TopFeaturedSection,
   ProductDetails,
+  CartPage,
+};
+
+const reac = () => {
+  return (
+    <div className="mt-10 bg-gray-50 px-4 pt-8 lg:mt-0">
+      <p className="text-xl font-medium">Payment Details</p>
+      <p className="text-gray-400">
+        Complete your order by providing your payment details.
+      </p>
+      <div className="">
+        <label htmlFor="email" className="mt-4 mb-2 block text-sm font-medium">
+          Email
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            id="email"
+            name="email"
+            className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+            placeholder="your.email@gmail.com"
+          />
+          <div className="pointer-events-none absolute inset-y-0 left-0 inline-flex items-center px-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+              />
+            </svg>
+          </div>
+        </div>
+        <label
+          htmlFor="card-holder"
+          className="mt-4 mb-2 block text-sm font-medium"
+        >
+          Card Holder
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            id="card-holder"
+            name="card-holder"
+            className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+            placeholder="Your full name here"
+          />
+          <div className="pointer-events-none absolute inset-y-0 left-0 inline-flex items-center px-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"
+              />
+            </svg>
+          </div>
+        </div>
+        <label
+          htmlFor="card-no"
+          className="mt-4 mb-2 block text-sm font-medium"
+        >
+          Card Details
+        </label>
+        <div className="flex">
+          <div className="relative w-7/12 flex-shrink-0">
+            <input
+              type="text"
+              id="card-no"
+              name="card-no"
+              className="w-full rounded-md border border-gray-200 px-2 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="xxxx-xxxx-xxxx-xxxx"
+            />
+            <div className="pointer-events-none absolute inset-y-0 left-0 inline-flex items-center px-3">
+              <svg
+                className="h-4 w-4 text-gray-400"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path d="M11 5.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1z" />
+                <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm13 2v5H1V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm-1 9H2a1 1 0 0 1-1-1v-1h14v1a1 1 0 0 1-1 1z" />
+              </svg>
+            </div>
+          </div>
+          <input
+            type="text"
+            name="credit-expiry"
+            className="w-full rounded-md border border-gray-200 px-2 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+            placeholder="MM/YY"
+          />
+          <input
+            type="text"
+            name="credit-cvc"
+            className="w-1/6 flex-shrink-0 rounded-md border border-gray-200 px-2 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+            placeholder="CVC"
+          />
+        </div>
+        <label
+          htmlFor="billing-address"
+          className="mt-4 mb-2 block text-sm font-medium"
+        >
+          Billing Address
+        </label>
+        <div className="flex flex-col sm:flex-row">
+          <div className="relative flex-shrink-0 sm:w-7/12">
+            <input
+              type="text"
+              id="billing-address"
+              name="billing-address"
+              className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Street Address"
+            />
+            <div className="pointer-events-none absolute inset-y-0 left-0 inline-flex items-center px-3">
+              <img
+                className="h-4 w-4 object-contain"
+                src="https://flagpack.xyz/_nuxt/4c829b6c0131de7162790d2f897a90fd.svg"
+                alt=""
+              />
+            </div>
+          </div>
+          <select
+            name="billing-state"
+            className="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="State">State</option>
+          </select>
+          <input
+            type="text"
+            name="billing-zip"
+            className="flex-shrink-0 rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none sm:w-1/6 focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+            placeholder="ZIP"
+          />
+        </div>
+
+        <div className="mt-6 border-t border-b py-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-900">Subtotal</p>
+            <p className="font-semibold text-gray-900">$399.00</p>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-900">Shipping</p>
+            <p className="font-semibold text-gray-900">$8.00</p>
+          </div>
+        </div>
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm font-medium text-gray-900">Total</p>
+          <p className="text-2xl font-semibold text-gray-900">$408.00</p>
+        </div>
+      </div>
+      <button className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">
+        Place Order
+      </button>
+    </div>
+  );
 };

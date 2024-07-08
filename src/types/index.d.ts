@@ -50,6 +50,7 @@ interface CartItem {
   price: number;
   size?: "2xl" | "xl" | "lg" | "md" | "sm";
   quantity: number;
+  discount: number;
 }
 
 export {
@@ -59,5 +60,5 @@ export {
   ImageCardProps,
   GalleryProps,
   ProductCardProps,
-  CartItem, 
+  CartItem,
 };

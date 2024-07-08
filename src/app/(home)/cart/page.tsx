@@ -1,9 +1,10 @@
 import React from "react";
-import { GranteeSection } from "../(modules)";
+import { GranteeSection, CartPage } from "../(modules)";
 
 const page = () => {
   return (
     <>
+      <CartPage /> 
       <GranteeSection />
     </>
   );

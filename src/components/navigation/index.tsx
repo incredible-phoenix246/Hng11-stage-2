@@ -138,7 +138,7 @@ const Navbar = () => {
           ))}
         </div>
         <Button asChild variant="secondary">
-          <Link href="/cart?paht=cart">Cart</Link>
+          <Link href="/cart?path=cart">Cart</Link>
         </Button>
       </div>
     </nav>
@@ -147,7 +147,7 @@ const Navbar = () => {
 
 const Footer = () => {
   return (
-    <footer className="flex flex-col md:flex-row items-center justify-between bg-[#242535] px-4 sm:px-8 xl:px-16 2xl:px-24 text-secondary md:h-[392px] py-3">
+    <footer className="flex flex-col lg:flex-row items-center justify-between bg-[#242535] px-4 sm:px-8 xl:px-16 2xl:px-24 text-secondary md:h-[392px] mt-[40px] py-3">
       <div className="flex items-center md:items-start gap-y-5  flex-col gap-2 w-full md:max-w-[30%]">
         <div>
           <h2 className="uppercase text-pretty text-primary font-unica text-5xl font-semibold">
@@ -157,7 +157,7 @@ const Footer = () => {
             The Home Of Clothings
           </span>
         </div>
-        <div className="flex items-center gap-1 w-full">
+        <div className="flex items-center gap-1 w-full justify-center">
           {social.map((sc) => (
             <Link
               key={sc.id}
@@ -183,35 +183,24 @@ const Footer = () => {
           </span>
         </div>
       </div>
-
-      <div className="flex items-center md:items-start gap-y-5  flex-col gap-2 w-full max-w-[30%]">
-        <h2 className="w-full text-2xl font-semibold leading-7 text-emerald-100">
+      <div className="flex items-center md:items-start gap-y-5  flex-col gap-2 w-full md:max-w-[30%]">
+        <h2 className="w-full text-2xl font-semibold text-emerald-100 text-center">
           Subscribe to our Newsletter
         </h2>
-        <form className="flex gap-2 w-full text-lg font-semibold leading-5 whitespace-nowrap text-slate-400">
-          <label htmlFor="email" className="sr-only">
-            Email
-          </label>
+        <form action="" className="flex items-center justify-center gap-1">
           <input
-            type="email"
-            id="email"
-            placeholder="Email..."
-            className="w-[296px] justify-center items-start px-3 py-3.5 rounded border-2 border-emerald-100 border-solid bg-slate-600"
+            type="text"
+            placeholder="email..."
+            className="md:w-[296px] w-[250px] px-3 py-3.5 rounded border outline-none border-emerald-100 border-solid bg-slate-600"
           />
           <button
             type="submit"
             aria-label="Subscribe"
-            className="bg-secondary w-[38px] px-3 py-3.5"
+            className="bg-secondary w-[38px] py-4 rounded-r-md items-center flex justify-center"
           >
             <ArrowRight color="#FFF" />
           </button>
         </form>
-        <div className="flex justify-between w-full">
-          <Image src="/monie.png" alt="" width={45} height={45} />
-          <Image src="/fluter.png" alt="" width={45} height={45} />
-          <Image src="/vec.png" alt="" width={45} height={45} />
-          <Image src="/ve.png" alt="" width={45} height={45} />
-        </div>
       </div>
     </footer>
   );

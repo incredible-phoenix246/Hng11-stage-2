@@ -1,12 +1,10 @@
+import { CartItem } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-
 
 /**
  * Shrink a string to a specified length(len).
@@ -84,7 +82,7 @@ function setObjectToLocalStorage<T>(key: string, value: T): void {
     const serializedValue = JSON.stringify(value);
     localStorage.setItem(key, serializedValue);
   } catch (error) {
-    console.error('Error setting object to local storage:', error);
+    console.error("Error setting object to local storage:", error);
   }
 }
 
@@ -103,13 +101,66 @@ function getObjectFromLocalStorage<T>(key: string): T | null {
     }
     return JSON.parse(serializedValue) as T;
   } catch (error) {
-    console.error('Error getting object from local storage:', error);
+    console.error("Error getting object from local storage:", error);
     return null;
   }
 }
 
+/**
+ * Increase the quantity of an item in the cart.
+ *
+ * @param {string | number} itemId - The ID of the item to increase the quantity of.
+ * @param {('2xl' | 'xl' | 'lg' | 'md' | 'sm') | undefined} size - The size of the item to increase the quantity of.
+ */
+function increaseQuantity(
+  itemId: string | number,
+  size?: "2xl" | "xl" | "lg" | "md" | "sm"
+): void {
+  const cart = getObjectFromLocalStorage<CartItem[]>("cart") || [];
+  const updatedCart = cart.map((item) => {
+    if (item.id === itemId && item.size === size) {
+      return { ...item, quantity: item.quantity + 1 };
+    }
+    return item;
+  });
+  setObjectToLocalStorage("cart", updatedCart);
+}
 
+/**
+ * Decrease the quantity of an item in the cart.
+ *
+ * @param {string | number} itemId - The ID of the item to decrease the quantity of.
+ * @param {('2xl' | 'xl' | 'lg' | 'md' | 'sm') | undefined} size - The size of the item to decrease the quantity of.
+ */
+function decreaseQuantity(
+  itemId: string | number,
+  size?: "2xl" | "xl" | "lg" | "md" | "sm"
+): void {
+  let cart = getObjectFromLocalStorage<CartItem[]>("cart") || [];
+  cart = cart.reduce((acc, item) => {
+    if (item.id === itemId && item.size === size) {
+      const updatedQuantity = item.quantity - 1;
+      if (updatedQuantity > 0) {
+        acc.push({ ...item, quantity: updatedQuantity });
+      }
+    } else {
+      acc.push(item);
+    }
+    return acc;
+  }, [] as CartItem[]);
+  setObjectToLocalStorage("cart", cart);
+}
 
+/**
+ * Remove an item from the cart.
+ *
+ * @param {string | number} itemId - The ID of the item to remove.
+ */
+function removeItem(itemId: string | number): void {
+  let cart = getObjectFromLocalStorage<CartItem[]>("cart") || [];
+  cart = cart.filter((item) => item.id !== itemId);
+  setObjectToLocalStorage("cart", cart);
+}
 
 export {
   cn,
@@ -119,7 +170,9 @@ export {
   timeAgo,
   setObjectToLocalStorage,
   getObjectFromLocalStorage,
+  removeItem,
+  increaseQuantity,
+  decreaseQuantity,
 };
 
-
-// 
+//
