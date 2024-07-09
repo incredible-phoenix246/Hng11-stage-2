@@ -735,6 +735,17 @@ const CartPage = () => {
     billingZip,
   } = formState;
 
+  const isFormValid = () => {
+    return (
+      email &&
+      cardHolder &&
+      cardNumber &&
+      cardExpiry &&
+      cardCvc &&
+      billingAddress &&
+      billingZip
+    );
+  };
   return (
     <section className="container flex flex-col">
       <div className="mt-5 flex items-center text-lg gap-0.5 ">
@@ -744,7 +755,7 @@ const CartPage = () => {
           {searchParams}
         </h2>
       </div>
-      <div className="flex flex-col md:flex-row items-center justify-evenly">
+      <div className="flex flex-col md:flex-row items-center justify-evenly gap-2">
         {/* cart section */}
         <div className="flex flex-col md:w-1/2 w-full">
           <div className="flex w-full justify-between capitalize p-2 border-b border-primary text-base">
@@ -902,7 +913,7 @@ const CartPage = () => {
               <input
                 type="text"
                 id="card-holder"
-                name="card-holder"
+                name="cardHolder"
                 onChange={handleChange}
                 value={cardHolder}
                 className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -936,7 +947,7 @@ const CartPage = () => {
                 <input
                   type="text"
                   id="card-no"
-                  name="card-no"
+                  name="cardNumber"
                   value={cardNumber}
                   onChange={handleChange}
                   className="w-full rounded-md border border-gray-200 px-2 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -958,7 +969,7 @@ const CartPage = () => {
               </div>
               <input
                 type="text"
-                name="credit-expiry"
+                name="cardExpiry"
                 value={cardExpiry}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-200 px-2 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -966,7 +977,7 @@ const CartPage = () => {
               />
               <input
                 type="text"
-                name="credit-cvc"
+                name="cardCvc"
                 value={cardCvc}
                 onChange={handleChange}
                 className="w-1/6 flex-shrink-0 rounded-md border border-gray-200 px-2 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -984,7 +995,7 @@ const CartPage = () => {
                 <input
                   type="text"
                   id="billing-address"
-                  name="billing-address"
+                  name="billingAddress"
                   value={billingAddress}
                   onChange={handleChange}
                   className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -999,7 +1010,7 @@ const CartPage = () => {
                 </div>
               </div>
               <select
-                name="billing-state"
+                name="billingState"
                 value={billingState}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -1008,7 +1019,7 @@ const CartPage = () => {
               </select>
               <input
                 type="text"
-                name="billing-zip"
+                name="billingZip"
                 value={billingZip}
                 onChange={handleChange}
                 className="flex-shrink-0 rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none sm:w-1/6 focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -1035,9 +1046,13 @@ const CartPage = () => {
               </p>
             </div>
           </div>
-          <button className="mt-4 mb-8 w-full rounded-md bg-secondary px-6 py-3 font-medium text-white">
+          <Button
+            className="mt-4 mb-8 w-full rounded-md bg-secondary px-6 py-3 font-medium text-white"
+            variant="secondary"
+            disabled={!isFormValid()}
+          >
             Place Order
-          </button>
+          </Button>
         </div>
       </div>
     </section>
