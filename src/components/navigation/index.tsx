@@ -138,23 +138,40 @@ const Navbar = () => {
             </Button>
           ))}
         </div>
-        <Button asChild variant="secondary">
-          <Link href="/cart?path=cart">Cart</Link>
-        </Button>
-      </div>
-      <div className="min-[900px]:hidden flex gap-2">
-        <Button className="text-primary text-base relative" variant="ghost">
-          <span className="">
-            <ShoppingCart aria-hidden />
-          </span>
-
-          <span className="absolute top-[2px] right-[2px] text-xs font-medium text-secondary">
+        <div className="relative">
+          <Button
+            asChild
+            variant="ghost"
+            className="text-primary text-base relative"
+          >
+            <Link href="/cart?path=cart">
+              <span className="">
+                <ShoppingCart aria-hidden />
+              </span>
+            </Link>
+          </Button>
+          <span className="absolute top-[-8px] right-[2px] text-base font-medium text-primary">
             {cart}
           </span>
-        </Button>
-        <Button asChild variant="secondary">
-          <Link href="/cart?path=cart">Cart</Link>
-        </Button>
+        </div>
+      </div>
+      <div className="min-[900px]:hidden flex gap-2">
+        <div className="relative">
+          <Button
+            asChild
+            variant="ghost"
+            className="text-primary text-base relative"
+          >
+            <Link href="/cart?path=cart">
+              <span className="">
+                <ShoppingCart aria-hidden />
+              </span>
+            </Link>
+          </Button>
+          <span className="absolute top-[-8px] right-[2px] text-base font-medium text-primary">
+            {cart}
+          </span>
+        </div>
       </div>
     </nav>
   );

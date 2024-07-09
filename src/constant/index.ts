@@ -12,7 +12,7 @@ const ICON_LINK: IconProps[] = [
   { id: 1, icon: SearchNormal1, action: "search" },
   { id: 2, icon: Heart, action: "favourite" },
   { id: 3, icon: Profile, action: "profile" },
-  { id: 4, icon: ShoppingCart, action: "cart" },
+  // { id: 4, icon: ShoppingCart, action: "cart" },
 ];
 
 const dummyProducts: ProductCardProps[] = [
