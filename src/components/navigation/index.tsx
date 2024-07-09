@@ -14,13 +14,14 @@ import {
   FaXTwitter,
   FaInstagram,
   FaWhatsapp,
+  FaBars,
 } from "react-icons/fa6";
 import { FiFacebook } from "react-icons/fi";
-import { ArrowRight } from "iconsax-react";
+import { ArrowRight, ShoppingCart } from "iconsax-react";
 import { ProductCardProps } from "@/types";
 
 const Navbar = () => {
-  const {} = useStateCtx();
+  const { showMobileMenu, setShowMobileMenu } = useStateCtx();
   const searchParams = useSearchParams().get("path");
   const scrollHeight = useWindowHeight();
   const [cart, setCart] = useState<number>(0);
@@ -137,6 +138,20 @@ const Navbar = () => {
             </Button>
           ))}
         </div>
+        <Button asChild variant="secondary">
+          <Link href="/cart?path=cart">Cart</Link>
+        </Button>
+      </div>
+      <div className="min-[900px]:hidden flex gap-2">
+        <Button className="text-primary text-base relative" variant="ghost">
+          <span className="">
+            <ShoppingCart aria-hidden />
+          </span>
+
+          <span className="absolute top-[2px] right-[2px] text-xs font-medium text-secondary">
+            {cart}
+          </span>
+        </Button>
         <Button asChild variant="secondary">
           <Link href="/cart?path=cart">Cart</Link>
         </Button>

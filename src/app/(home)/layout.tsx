@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Footer, Navbar } from "@/components/navigation";
 import { SkeletonNavbar } from "@/components/skelton";
-import { ProductDetails } from "./(modules)";
+import { ProductDetails, SucessModal } from "./(modules)";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +11,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </Suspense>
       {children}
       <ProductDetails />
+      <SucessModal />
+
       <Footer />
     </>
   );

@@ -11,7 +11,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { LifeBuoy, Plane, History } from "lucide-react";
+import { LifeBuoy, Plane, History, X } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
 import { cn, decreaseQuantity, increaseQuantity, removeItem } from "@/utils";
@@ -658,6 +658,7 @@ const ProductDetails = () => {
 const CartPage = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const searchParams = useSearchParams().get("path");
+  const { setOpenSucess } = useStateCtx();
 
   const [formState, setFormState] = useState<PaymentDetailsState>({
     email: "",
@@ -746,6 +747,11 @@ const CartPage = () => {
       billingZip
     );
   };
+  const handleSubmit = () => {
+    localStorage.setItem("paymentDetails", JSON.stringify(formState));
+    setOpenSucess(true);
+  };
+
   return (
     <section className="container flex flex-col">
       <div className="mt-5 flex items-center text-lg gap-0.5 ">
@@ -1047,9 +1053,10 @@ const CartPage = () => {
             </div>
           </div>
           <Button
-            className="mt-4 mb-8 w-full rounded-md bg-secondary px-6 py-3 font-medium text-white"
+            className="mt-4 mb-8 w-full rounded-md bg-secondary px-6 py-3 font-medium text-white disabled:cursor-not-allowed"
             variant="secondary"
             disabled={!isFormValid()}
+            onClick={handleSubmit}
           >
             Place Order
           </Button>
@@ -1058,6 +1065,144 @@ const CartPage = () => {
     </section>
   );
 };
+
+const SucessModal = () => {
+  const { openSuccess, setOpenSucess } = useStateCtx();
+  const [formState, setFormState] = useState<PaymentDetailsState>({
+    email: "",
+    cardHolder: "",
+    cardNumber: "",
+    cardExpiry: "",
+    cardCvc: "",
+    billingAddress: "",
+    billingState: "",
+    billingZip: "",
+  });
+  useEffect(() => {
+    const cart =
+      getObjectFromLocalStorage<PaymentDetailsState>("paymentDetails");
+    if (cart) {
+      setFormState(cart);
+    }
+  }, [openSuccess]);
+
+  const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    };
+    return date.toLocaleDateString("en-GB", options).replace(/ /g, " ");
+  };
+  const formattedDate = formatDate(new Date());
+  return (
+    <>
+      <div
+        aria-hidden
+        className={cn(
+          " fixed min-h-screen w-full bg-black/40  top-0 left-0  transition-all duration-300 z-[99] backdrop-blur-sm",
+          openSuccess ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setOpenSucess(false)}
+      />
+      <div
+        role="dialog"
+        aria-labelledby="remove-client"
+        className={cn(
+          "py-6   flex flex-col max-[350px]:h-[410px] w-[90%] h-[380px] min-[550px]:w-[500px] md:w-[682px] md:h-[400px] items-center bg-base-white  fixed top-1/2 left-1/2  z-[999]  transition-all opacity-0 select-none  -translate-y-1/2 -translate-x-1/2",
+          openSuccess
+            ? "scale-100 duration-500 opacity-100 rounded-xl md:rounded-2xl"
+            : "scale-0 duration-200 pointer-events-none"
+        )}
+      >
+        <div className="flex items-center justify-between w-full border-b border-primary pb-4 pl-4 px-4 md:pl-8 ">
+          <h3 className="sm:text-lg md:text-2xl font-medium text-primary">
+            Payment Sucessfull
+          </h3>
+          <button
+            type="button"
+            tabIndex={0}
+            aria-label="Close"
+            onClick={() => setOpenSucess(false)}
+            className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light rounded-full text-red-500"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <div className="mt-3">
+          <div className="mx-auto max-w-2xl px-4 2xl:px-0">
+            <h2 className="text-xl font-semibold text-primary sm:text-2xl mb-2">
+              Thanks for your order!
+            </h2>
+            <p className="text-gray-500 mb-6 md:mb-8">
+              Your order{" "}
+              <span className="font-medium text-gray-900 hover:underline">
+                #7564804
+              </span>
+              will be processed within 24 hours during working days. We will
+              notify you by email once your order has been shipped.
+            </p>
+            <div className="space-y-4 sm:space-y-2">
+              <dl className="sm:flex items-center justify-between gap-4">
+                <dt className="font-normal mb-1 sm:mb-0 text-gray-500 dark:text-gray-400">
+                  Date
+                </dt>
+                <dd className="font-medium text-gray-900 sm:text-end">
+                  {formattedDate}
+                </dd>
+              </dl>
+              <dl className="sm:flex items-center justify-between gap-4">
+                <dt className="font-normal mb-1 sm:mb-0 text-gray-500 dark:text-gray-400">
+                  Payment Method
+                </dt>
+                <dd className="font-medium text-gray-900 dark:text-white sm:text-end">
+                  Card
+                </dd>
+              </dl>
+              <dl className="sm:flex items-center justify-between gap-4">
+                <dt className="font-normal mb-1 sm:mb-0 text-gray-500 dark:text-gray-400">
+                  Name
+                </dt>
+                <dd className="font-medium text-gray-900 dark:text-white sm:text-end">
+                  {formState.cardHolder}
+                </dd>
+              </dl>
+              <dl className="sm:flex items-center justify-between gap-4">
+                <dt className="font-normal mb-1 sm:mb-0 text-gray-500 dark:text-gray-400">
+                  Address
+                </dt>
+                <dd className="font-medium text-gray-900 dark:text-white sm:text-end">
+                  {formState.billingAddress}
+                </dd>
+              </dl>
+              <dl className="sm:flex items-center justify-between gap-4">
+                <dt className="font-normal mb-1 sm:mb-0 text-gray-500 dark:text-gray-400">
+                  Phone
+                </dt>
+                <dd className="font-medium text-gray-900 dark:text-white sm:text-end">
+                  +(123) 456 7890
+                </dd>
+              </dl>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
+                Track your order
+              </span>
+
+              <Button asChild variant="ghost" className="w-[150px] shadow-md">
+                <Link href="/?path=home">
+                  <ArrowLeft2 />
+                  Return to shopping
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 export {
   HeroSection,
   GranteeSection,
@@ -1067,6 +1212,7 @@ export {
   TopFeaturedSection,
   ProductDetails,
   CartPage,
+  SucessModal,
 };
 
 interface PaymentDetailsState {

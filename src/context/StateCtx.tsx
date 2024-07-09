@@ -7,6 +7,8 @@ interface StateContextProps {
   setShowMobileMenu: React.Dispatch<React.SetStateAction<boolean>>;
   openDesc: boolean;
   setOpenDesc: React.Dispatch<React.SetStateAction<boolean>>;
+  openSuccess: boolean;
+  setOpenSucess: React.Dispatch<React.SetStateAction<boolean>>;
   selectedProduct: string | number;
   setSelectedProduct: React.Dispatch<React.SetStateAction<string | number>>;
 }
@@ -16,6 +18,7 @@ export const StateContext = createContext({} as StateContextProps);
 const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [openDesc, setOpenDesc] = React.useState(false);
+  const [openSuccess, setOpenSucess] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState<string | number>(
     ""
   );
@@ -31,6 +34,7 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
       if (e.key === "Escape") {
         setShowMobileMenu(false);
         setOpenDesc(false);
+        setOpenSucess(false);
       }
     };
 
@@ -39,7 +43,7 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [showMobileMenu, openDesc]);
+  }, [showMobileMenu, openDesc, openSuccess]);
 
   useEffect(() => {
     const t = "%c  Made By \ud83d\udc9a  - Phoenix && Remy for HNG11",
@@ -64,8 +68,10 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
       setOpenDesc,
       selectedProduct,
       setSelectedProduct,
+      openSuccess,
+      setOpenSucess,
     }),
-    [showMobileMenu, openDesc, selectedProduct]
+    [showMobileMenu, openDesc, selectedProduct, openSuccess]
   );
 
   return (
