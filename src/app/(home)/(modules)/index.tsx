@@ -385,7 +385,7 @@ const ShopSection = () => {
               {currentProducts.map((pd) => (
                 <ProductCard
                   name={pd.name}
-                  image={`http://api.timbu.cloud/images/${pd.photos[0].url}`}
+                  image={`${pd.photos[0].url}`}
                   key={pd.id}
                   price={pd.current_price[0].USD[0]}
                   id={pd.id}
@@ -560,7 +560,7 @@ const TopSellingSection = () => {
               {products.map((pd) => (
                 <ProductCard
                   name={pd.name}
-                  image={`http://api.timbu.cloud/images/${pd.photos[0].url}`}
+                  src={`http://api.timbu.cloud/images/${pd?.photos[0].url}`}
                   key={pd.id}
                   price={pd.current_price[0].USD[0]}
                   id={pd.id}
@@ -651,7 +651,7 @@ const TopFeaturedSection = () => {
               {products.map((pd) => (
                 <ProductCard
                   name={pd.name}
-                  image={`http://api.timbu.cloud/images/${pd.photos[0].url}`}
+                  src={`http://api.timbu.cloud/images/${pd?.photos[0].url}`}
                   key={pd.id}
                   price={pd.current_price[0].USD[0]}
                   id={pd.id}
