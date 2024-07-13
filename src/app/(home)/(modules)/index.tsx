@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useTransition } from "react";
 import { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import {
@@ -15,7 +15,13 @@ import { LifeBuoy, Plane, History, X } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
 import useInView from "@/hooks/useInView";
 import { cn, decreaseQuantity, increaseQuantity, removeItem } from "@/utils";
-import { ImageCardProps, Tabprops, ProductCardProps, CartItem } from "@/types";
+import {
+  ImageCardProps,
+  Tabprops,
+  ProductCardProps,
+  CartItem,
+  Product,
+} from "@/types";
 import {
   Sheet,
   SheetContent,
@@ -35,6 +41,8 @@ import {
   Minus,
 } from "iconsax-react";
 import Link from "next/link";
+import { getProducts } from "@/actions";
+import { CardSkelt } from "@/components/skelton";
 
 const HeroSection = () => {
   return (
@@ -290,11 +298,34 @@ const ShopSection = () => {
   const ShopRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: ShopRef, once: false });
   const [currentTab, setcurrentTab] = useState<String>("all");
+  const [products, setProduct] = useState<Product[]>([]);
+  console.log(products);
+  const [isPending, startTransition] = useTransition();
+  console.log(isPending);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      startTransition(() => {
+        getProducts().then((res) => {
+          setProduct(res.products);
+        });
+      });
+    };
+    fetchProducts();
+  }, []);
+
+  // const filteredProducts =
+  //   currentTab === "all"
+  //     ? dummyProducts
+  //     : dummyProducts.filter((product) => product.category === currentTab);
   const filteredProducts =
     currentTab === "all"
-      ? dummyProducts
-      : dummyProducts.filter((product) => product.category === currentTab);
+      ? products
+      : products.filter((product) =>
+          product.categories.some(
+            (category) => category.name.toLowerCase() === currentTab
+          )
+        );
   return (
     <main
       ref={ShopRef}
@@ -333,9 +364,29 @@ const ShopSection = () => {
         </nav>
       </div>
       <section className="container flex flex-wrap gap-4 mt-9 items-center justify-center">
-        {filteredProducts.map((pd) => (
-          <ProductCard {...pd} key={pd.id} />
-        ))}
+        {isPending ? (
+          <>
+            {Array.from({ length: 10 }).map((_) => (
+              <CardSkelt />
+            ))}
+          </>
+        ) : (
+          <>
+            {filteredProducts.map((pd) => (
+              <ProductCard
+                name={pd.name}
+                image={pd.photos[0].url}
+                key={pd.id}
+                price={pd.current_price[0].USD[0]}
+                id={pd.id}
+                rating={4}
+                discount={5}
+                desc={pd.description}
+                category={pd.categories[0].name}
+              />
+            ))}
+          </>
+        )}
       </section>
     </main>
   );
@@ -348,12 +399,17 @@ const ProductCard = ({
   price,
   id,
   image,
-  category,
 }: ProductCardProps) => {
   const productCardRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: productCardRef, once: false });
   const discountedPrice = price * (1 - discount / 100);
   const { setSelectedProduct, setOpenDesc } = useStateCtx();
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price);
+  };
   return (
     <div
       ref={productCardRef}
@@ -364,12 +420,12 @@ const ProductCard = ({
       }}
       className="w-[350px] h-[625px] rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-md shadow-primary/30 embla__slide"
     >
-      <div className="w-full relative bg-[#CFD1DF] h-[400px]">
+      <div className="w-full relative bg-[#CFD1DF] max-h-[400px]">
         <Image
-          src={`/product/${category}/${id}.png`}
+          src={`http://api.timbu.cloud/images/${image}`}
           width={350}
           height={400}
-          className="rounded-t-2xl object-cover w-full max-w-[350] max-h-[400]"
+          className="rounded-t-2xl object-cover w-full max-w-[350px] max-h-[400px]"
           alt="product"
         />
         <div className="ribbon-wrap">
@@ -394,9 +450,11 @@ const ProductCard = ({
         <span className="text-primary text-lg">{name}</span>
         <div className="flex w-[175px] h-[29px] items-center justify-center gap-2 ">
           <span className="text-primary text-2xl font-medium">
-            &#x20A6;{discountedPrice}
+            {formatPrice(discountedPrice)}
           </span>
-          <span className="line-through text-base text-[#A0A3BF]">{price}</span>
+          <span className="line-through text-base text-[#A0A3BF]">
+            {formatPrice(price)}
+          </span>
         </div>
         <Button
           className="w-[281px] h-[60px] text-center text-lg font-medium"

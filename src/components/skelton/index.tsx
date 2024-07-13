@@ -15,4 +15,10 @@ function SkeletonNavbar() {
   );
 }
 
-export { SkeletonNavbar };
+function CardSkelt() {
+  return (
+    <div className="flex justify-between items-center gap-x-2 w-[350px] h-[625px] rounded-2xl bg-black/20" />
+  );
+}
+
+export { SkeletonNavbar, CardSkelt };
