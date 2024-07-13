@@ -32,7 +32,7 @@ type GalleryProps = {
 };
 
 interface ProductCardProps {
-  id: number | string;
+  id: string;
   image: string;
   rating: number;
   name: string;

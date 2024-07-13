@@ -9,8 +9,8 @@ interface StateContextProps {
   setOpenDesc: React.Dispatch<React.SetStateAction<boolean>>;
   openSuccess: boolean;
   setOpenSucess: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedProduct: string | number;
-  setSelectedProduct: React.Dispatch<React.SetStateAction<string | number>>;
+  selectedProduct: string;
+  setSelectedProduct: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const StateContext = createContext({} as StateContextProps);
@@ -19,9 +19,7 @@ const StateContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [openDesc, setOpenDesc] = React.useState(false);
   const [openSuccess, setOpenSucess] = React.useState(false);
-  const [selectedProduct, setSelectedProduct] = React.useState<string | number>(
-    ""
-  );
+  const [selectedProduct, setSelectedProduct] = React.useState<string>("");
 
   useEffect(() => {
     if (showMobileMenu) {

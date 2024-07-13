@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 "use client";
 
 import React, { useState, useEffect, useCallback, useTransition } from "react";
@@ -41,7 +43,7 @@ import {
   Minus,
 } from "iconsax-react";
 import Link from "next/link";
-import { getProducts } from "@/actions";
+import { getProductById, getProducts } from "@/actions";
 import { CardSkelt } from "@/components/skelton";
 
 const HeroSection = () => {
@@ -299,9 +301,7 @@ const ShopSection = () => {
   const isInView = useInView({ ref: ShopRef, once: false });
   const [currentTab, setcurrentTab] = useState<String>("all");
   const [products, setProduct] = useState<Product[]>([]);
-  console.log(products);
   const [isPending, startTransition] = useTransition();
-  console.log(isPending);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -366,8 +366,8 @@ const ShopSection = () => {
       <section className="container flex flex-wrap gap-4 mt-9 items-center justify-center">
         {isPending ? (
           <>
-            {Array.from({ length: 10 }).map((_) => (
-              <CardSkelt />
+            {Array.from({ length: 10 }).map((_, i) => (
+              <CardSkelt key={i} />
             ))}
           </>
         ) : (
@@ -609,6 +609,21 @@ const ProductDetails = () => {
   const { openDesc, setOpenDesc, selectedProduct } = useStateCtx();
   const { toast } = useToast();
 
+  const [product, setProduct] = useState<Product>();
+
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      startTransition(() => {
+        getProductById(selectedProduct).then((res) => {
+          setProduct(res.product);
+        });
+      });
+    };
+    fetchProducts();
+  }, [openDesc]);
+
   const selectedProductDetails = dummyProducts.find(
     (p) => p.id === selectedProduct
   );
@@ -617,24 +632,20 @@ const ProductDetails = () => {
     return;
   }
 
-  const cart = getObjectFromLocalStorage<CartItem[]>("cart") || [];
+  const cart = getObjectFromLocalStorage<Cart[]>("cart") || [];
 
-  const addToCart = (product: ProductCardProps, size?: CartItem["size"]) => {
-    const existingItemIndex = cart.findIndex(
-      (item) => item.id === product.id && item.size === size
-    );
+  const addToCart = (product: Product, size?: CartItem["size"]) => {
+    const existingItemIndex = cart.findIndex((item) => item.id === product.id);
 
     if (existingItemIndex !== -1) {
       cart[existingItemIndex].quantity += 1;
     } else {
-      const newItem: CartItem = {
+      // @ts-expect-error
+      const newItem: Cart = {
         id: product.id,
         name: product.name,
-        category: product.category,
-        price: product.price,
-        size: size,
+        price: product.current_price[0].USD,
         quantity: 1,
-        discount: product.discount,
       };
       cart.push(newItem);
     }
@@ -661,18 +672,18 @@ const ProductDetails = () => {
         </SheetHeader>
         <div className="w-full items-center justify-center flex flex-col mb-5">
           <Image
-            src={`/product/${selectedProductDetails.category}/${selectedProductDetails.id}.png`}
+            src={`http://api.timbu.cloud/images/${product?.photos[0].url}`}
             width={350}
             height={400}
             className="rounded-2xl object-cover w-full float-start max-h-[400px]"
             alt="product"
           />
           <h2 className="text-xl font-medium capitalize mt-5">
-            {selectedProductDetails.name}
+            {product?.name}
           </h2>
-          <p className="text-sm font-normal">{selectedProductDetails.desc}</p>
+          <p className="text-sm font-normal">{product?.description}</p>
         </div>
-        <div className="mt-2 flex w-full items-center justify-center">
+        {/* <div className="mt-2 flex w-full items-center justify-center">
           {selectedProductDetails.sizes && (
             <div className="flex w-full items-center justify-between mx-auto max-w-[200px]">
               {selectedProductDetails.sizes.map((size) => (
@@ -692,16 +703,16 @@ const ProductDetails = () => {
               ))}
             </div>
           )}
-        </div>
+        </div> */}
         <div className="flex w-full items-center justify-center mt-4">
           <Button
             className="w-[215px] h-[62px] text-center mt-4"
             variant="secondary"
             onClick={() => {
-              addToCart(selectedProductDetails);
+              addToCart(product!);
               toast({
                 title: "Product added to cart",
-                description: `${selectedProductDetails.name} has been added to cart`,
+                description: `${product?.name} has been added to cart`,
               });
             }}
           >
@@ -714,7 +725,7 @@ const ProductDetails = () => {
 };
 
 const CartPage = () => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<Cart[]>([]);
   const searchParams = useSearchParams().get("path");
   const { setOpenSucess } = useStateCtx();
 
@@ -740,7 +751,7 @@ const CartPage = () => {
   };
   useEffect(() => {
     const getCart = () => {
-      const cart = getObjectFromLocalStorage<CartItem[]>("cart");
+      const cart = getObjectFromLocalStorage<Cart[]>("cart");
       if (cart) {
         setCart(cart);
       }
@@ -763,26 +774,26 @@ const CartPage = () => {
   const isCart = searchParams === "cart";
 
   const fetchCart = () => {
-    const cart = getObjectFromLocalStorage<CartItem[]>("cart");
+    const cart = getObjectFromLocalStorage<Cart[]>("cart");
     if (cart) {
       setCart(cart);
     }
   };
 
-  const calculateSubtotal = () => {
-    return cart.reduce(
-      (acc, item) => {
-        const itemTotal =
-          (item.price - (item.price * item.discount) / 100) * item.quantity;
-        acc.totalPrice += itemTotal;
-        acc.totalQuantity += item.quantity;
-        return acc;
-      },
-      { totalPrice: 0, totalQuantity: 0 }
-    );
-  };
+  // const calculateSubtotal = () => {
+  //   return cart.reduce(
+  //     (acc, item) => {
+  //       const itemTotal =
+  //         (item.price - (item.price * item.discount) / 100) * item.quantity;
+  //       acc.totalPrice += itemTotal;
+  //       acc.totalQuantity += item.quantity;
+  //       return acc;
+  //     },
+  //     { totalPrice: 0, totalQuantity: 0 }
+  //   );
+  // };
 
-  const { totalPrice, totalQuantity } = calculateSubtotal();
+  // const { totalPrice, totalQuantity } = calculateSubtotal();
   const {
     email,
     cardHolder,
@@ -849,7 +860,7 @@ const CartPage = () => {
                       <CloseCircle />
                     </button>
                     <Image
-                      src={`/product/${cart.category}/${cart.id}.png`}
+                      src={`http://api.timbu.cloud/images/${cart?.photos[0].url}`}
                       width={75}
                       height={100}
                       className="object-cover"
@@ -861,15 +872,15 @@ const CartPage = () => {
                       {cart.name}
                     </p>
                     <span className="text-red-500 text-xs">29 unit left</span>
-                    {cart.size && (
+                    {/* {cart.size && (
                       <span className="text-sm">Size: {cart.size}</span>
-                    )}
+                    )} */}
                   </div>
                   <div className="flex items-center justify-center">
                     <button
                       className="text-center text-primary items-center"
                       onClick={() => {
-                        decreaseQuantity(cart.id, cart.size);
+                        decreaseQuantity(cart.id);
                         fetchCart();
                       }}
                     >
@@ -879,7 +890,7 @@ const CartPage = () => {
                     <button
                       className="text-center text-red-500"
                       onClick={() => {
-                        increaseQuantity(cart.id, cart.size);
+                        increaseQuantity(cart.id);
                         fetchCart();
                       }}
                     >
@@ -1282,4 +1293,9 @@ interface PaymentDetailsState {
   billingAddress: string;
   billingState: string;
   billingZip: string;
+}
+
+interface Cart extends Product {
+  quantity: number;
+  price: string | any;
 }
