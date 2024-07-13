@@ -288,7 +288,7 @@ const LargeImageCard = ({
 
 const tabs: Tabprops[] = [
   { id: 7, label: "all", tab: "all" },
-  { id: 1, label: "men", tab: "men" },
+  { id: 1, label: "mens", tab: "mens" },
   { id: 2, label: "women", tab: "women" },
   { id: 3, label: "kids", tab: "kids" },
   { id: 4, label: "accessories", tab: "accessories" },
@@ -302,6 +302,8 @@ const ShopSection = () => {
   const [currentTab, setcurrentTab] = useState<String>("all");
   const [products, setProduct] = useState<Product[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const productsPerPage = 12;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -314,10 +316,6 @@ const ShopSection = () => {
     fetchProducts();
   }, []);
 
-  // const filteredProducts =
-  //   currentTab === "all"
-  //     ? dummyProducts
-  //     : dummyProducts.filter((product) => product.category === currentTab);
   const filteredProducts =
     currentTab === "all"
       ? products
@@ -326,13 +324,23 @@ const ShopSection = () => {
             (category) => category.name.toLowerCase() === currentTab
           )
         );
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
     <main
       ref={ShopRef}
       className={cn(
         "mt-8",
         isInView
-          ? "opacity-100 translate-y-0 md:delay-300 duration-500 mt-7"
+          ? "opacity-100 translate-y-0 md:delay-300 duration-500 mt-7 pb-6"
           : " opacity-0 translate-y-36"
       )}
     >
@@ -363,31 +371,40 @@ const ShopSection = () => {
           ))}
         </nav>
       </div>
-      <section className="container flex flex-wrap gap-4 mt-9 items-center justify-center">
-        {isPending ? (
-          <>
-            {Array.from({ length: 10 }).map((_, i) => (
-              <CardSkelt key={i} />
-            ))}
-          </>
-        ) : (
-          <>
-            {filteredProducts.map((pd) => (
-              <ProductCard
-                name={pd.name}
-                image={pd.photos[0].url}
-                key={pd.id}
-                price={pd.current_price[0].USD[0]}
-                id={pd.id}
-                rating={4}
-                discount={5}
-                desc={pd.description}
-                category={pd.categories[0].name}
-              />
-            ))}
-          </>
-        )}
-      </section>
+
+      <div className="flex flex-col w-full gap-2">
+        <section className="container flex flex-wrap gap-4 mt-9 items-center justify-center">
+          {isPending ? (
+            <>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <CardSkelt key={i} />
+              ))}
+            </>
+          ) : (
+            <>
+              {currentProducts.map((pd) => (
+                <ProductCard
+                  name={pd.name}
+                  image={`http://api.timbu.cloud/images/${pd.photos[0].url}`}
+                  key={pd.id}
+                  price={pd.current_price[0].USD[0]}
+                  id={pd.id}
+                  rating={4}
+                  discount={5}
+                  desc={pd.description}
+                  category={pd.categories[0].name}
+                />
+              ))}
+            </>
+          )}
+        </section>
+        <Pagination
+          productsPerPage={productsPerPage}
+          totalProducts={filteredProducts.length}
+          paginate={paginate}
+          currentPage={currentPage}
+        />
+      </div>
     </main>
   );
 };
@@ -403,7 +420,8 @@ const ProductCard = ({
   const productCardRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: productCardRef, once: false });
   const discountedPrice = price * (1 - discount / 100);
-  const { setSelectedProduct, setOpenDesc } = useStateCtx();
+  const { setSelectedProduct, setOpenDesc, setselectedProPrice } =
+    useStateCtx();
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -460,6 +478,7 @@ const ProductCard = ({
           className="w-[281px] h-[60px] text-center text-lg font-medium"
           variant="secondary"
           onClick={() => {
+            setselectedProPrice(formatPrice(discountedPrice));
             setSelectedProduct(id);
             setOpenDesc(true);
           }}
@@ -606,8 +625,15 @@ const TopFeaturedSection = () => {
 
 const ProductDetails = () => {
   const { isMobile } = useMediaQuery();
-  const { openDesc, setOpenDesc, selectedProduct } = useStateCtx();
+  const {
+    openDesc,
+    setOpenDesc,
+    selectedProduct,
+    selectedProPrice,
+    setSelectedProduct,
+  } = useStateCtx();
   const { toast } = useToast();
+  console.log(selectedProPrice);
 
   const [product, setProduct] = useState<Product>();
 
@@ -624,18 +650,11 @@ const ProductDetails = () => {
     fetchProducts();
   }, [openDesc]);
 
-  const selectedProductDetails = dummyProducts.find(
-    (p) => p.id === selectedProduct
-  );
-
-  if (!selectedProductDetails) {
-    return;
-  }
-
   const cart = getObjectFromLocalStorage<Cart[]>("cart") || [];
 
   const addToCart = (product: Product, size?: CartItem["size"]) => {
     const existingItemIndex = cart.findIndex((item) => item.id === product.id);
+    console.log(product);
 
     if (existingItemIndex !== -1) {
       cart[existingItemIndex].quantity += 1;
@@ -644,8 +663,12 @@ const ProductDetails = () => {
       const newItem: Cart = {
         id: product.id,
         name: product.name,
-        price: product.current_price[0].USD,
+        price: product.current_price
+          ? product.current_price[0].USD
+          : selectedProPrice,
         quantity: 1,
+        photos: product.photos[0].url,
+        ...product,
       };
       cart.push(newItem);
     }
@@ -709,7 +732,7 @@ const ProductDetails = () => {
             className="w-[215px] h-[62px] text-center mt-4"
             variant="secondary"
             onClick={() => {
-              addToCart(product!);
+              addToCart(product);
               toast({
                 title: "Product added to cart",
                 description: `${product?.name} has been added to cart`,
@@ -780,20 +803,31 @@ const CartPage = () => {
     }
   };
 
-  // const calculateSubtotal = () => {
-  //   return cart.reduce(
-  //     (acc, item) => {
-  //       const itemTotal =
-  //         (item.price - (item.price * item.discount) / 100) * item.quantity;
-  //       acc.totalPrice += itemTotal;
-  //       acc.totalQuantity += item.quantity;
-  //       return acc;
-  //     },
-  //     { totalPrice: 0, totalQuantity: 0 }
-  //   );
-  // };
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price);
+  };
 
-  // const { totalPrice, totalQuantity } = calculateSubtotal();
+  const calculateSubtotal = (cart: { price: string; quantity: number }[]) => {
+    const { totalPrice, totalQuantity } = cart.reduce(
+      (acc, item) => {
+        const price = parseFloat(item.price.replace("$", ""));
+        const itemTotal = price * item.quantity;
+        acc.totalPrice += itemTotal;
+        acc.totalQuantity += item.quantity;
+        return acc;
+      },
+      { totalPrice: 0, totalQuantity: 0 }
+    );
+
+    const formattedTotalPrice = formatPrice(totalPrice);
+
+    return { totalPrice: formattedTotalPrice, totalQuantity };
+  };
+
+  const subtotal = calculateSubtotal(cart);
   const {
     email,
     cardHolder,
@@ -844,70 +878,80 @@ const CartPage = () => {
 
           {cart?.length > 0 ? (
             <div className="flex flex-col divide-y divide-primary w-full">
-              {cart?.map((cart) => (
-                <div
-                  key={cart.id}
-                  className="flex w-full justify-between items-center h-[140px]"
-                >
-                  <div className="flex items-center justify-center gap-0.5">
-                    <button
-                      className="text-center text-red-500"
-                      onClick={() => {
-                        removeItem(cart.id);
-                        fetchCart();
-                      }}
-                    >
-                      <CloseCircle />
-                    </button>
-                    <Image
-                      src={`http://api.timbu.cloud/images/${cart?.photos[0].url}`}
-                      width={75}
-                      height={100}
-                      className="object-cover"
-                      alt="product"
-                    />
+              {cart?.map((item) => {
+                const price = parseFloat(item.price.replace("$", "")); 
+                const discount = item.discount ? item.discount : 0;
+                const discountedPrice = price * (1 - discount / 100); 
+                const totalPrice = discountedPrice * item.quantity; 
+
+                return (
+                  <div
+                    key={item.id}
+                    className="flex w-full justify-between items-center h-[140px]"
+                  >
+                    <div className="flex items-center justify-center gap-0.5">
+                      <button
+                        className="text-center text-red-500"
+                        onClick={() => {
+                          removeItem(item.id);
+                          fetchCart();
+                        }}
+                      >
+                        <CloseCircle />
+                      </button>
+                      <Image
+                        src={`http://api.timbu.cloud/images/${item?.photos[0].url}`}
+                        width={75}
+                        height={100}
+                        className="object-cover"
+                        alt="product"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="text-pretty capitalize text-2xl">
+                        {item.name}
+                      </p>
+                      <span className="text-red-500 text-xs">29 unit left</span>
+                      {/* {item.size && (
+          <span className="text-sm">Size: {item.size}</span>
+        )} */}
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <button
+                        className="text-center text-primary items-center"
+                        onClick={() => {
+                          decreaseQuantity(item.id);
+                          fetchCart();
+                        }}
+                      >
+                        <Minus />
+                      </button>
+                      <span className="text-center text-lg">
+                        {item.quantity}
+                      </span>
+                      <button
+                        className="text-center text-red-500"
+                        onClick={() => {
+                          increaseQuantity(item.id);
+                          fetchCart();
+                        }}
+                      >
+                        <Add />
+                      </button>
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="text-xl text-primary">
+                        {formatPrice(totalPrice)} {/* Format the total price */}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <p className="text-pretty capitalize text-2xl">
-                      {cart.name}
-                    </p>
-                    <span className="text-red-500 text-xs">29 unit left</span>
-                    {/* {cart.size && (
-                      <span className="text-sm">Size: {cart.size}</span>
-                    )} */}
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <button
-                      className="text-center text-primary items-center"
-                      onClick={() => {
-                        decreaseQuantity(cart.id);
-                        fetchCart();
-                      }}
-                    >
-                      <Minus />
-                    </button>
-                    <span className="text-center text-lg">{cart.quantity}</span>
-                    <button
-                      className="text-center text-red-500"
-                      onClick={() => {
-                        increaseQuantity(cart.id);
-                        fetchCart();
-                      }}
-                    >
-                      <Add />
-                    </button>
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="text-xl text-primary">
-                      {((cart.price * cart.discount) / 100) * cart.quantity}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+
               <div className="h-0.5 bg-primary w-full" />
               <div className="flex items-center justify-end py-5">
                 <span className="text-2xl font-unica">
-                  Subtotal: {totalQuantity}, &#x20A6;{totalPrice}
+                  Subtotal: {subtotal.totalQuantity}, {subtotal.totalPrice}
                 </span>
               </div>
               <div className="h-0.5 bg-primary w-full" />
@@ -922,7 +966,7 @@ const CartPage = () => {
                   Total
                 </span>
                 <span className="text-lg uppercase font-unica font-semibold">
-                  &#x20A6;{totalPrice}
+                  {subtotal.totalPrice}
                 </span>
               </div>
             </div>
@@ -1106,7 +1150,7 @@ const CartPage = () => {
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-base-white">Subtotal</p>
                 <p className="font-semibold text-base-white">
-                  &#x20A6;{totalPrice}
+                  {subtotal.totalPrice}
                 </p>
               </div>
               <div className="flex items-center justify-between">
@@ -1117,7 +1161,7 @@ const CartPage = () => {
             <div className="mt-6 flex items-center justify-between">
               <p className="text-sm font-medium text-base-white">Total</p>
               <p className="text-2xl font-semibold text-base-white">
-                &#x20A6;{totalPrice + 1000}
+                {subtotal.totalPrice + 1000}
               </p>
             </div>
           </div>
@@ -1272,6 +1316,41 @@ const SucessModal = () => {
   );
 };
 
+const Pagination: React.FC<PaginationProps> = ({
+  productsPerPage,
+  totalProducts,
+  paginate,
+  currentPage,
+}) => {
+  const pageNumbers = [];
+
+  for (let i = 1; i <= Math.ceil(totalProducts / productsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <nav className="flex justify-end pr-4">
+      <ul className="flex list-none mt-4">
+        {pageNumbers.map((number) => (
+          <li key={number} className="mx-1">
+            <div
+              onClick={() => paginate(number)}
+              className={cn(
+                "block px-3 py-2 rounded-md cursor-pointer",
+                currentPage === number
+                  ? "bg-primary text-base-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300",
+                !currentPage && "cursor-not-allowed"
+              )}
+            >
+              {number}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
 export {
   HeroSection,
   GranteeSection,
@@ -1298,4 +1377,11 @@ interface PaymentDetailsState {
 interface Cart extends Product {
   quantity: number;
   price: string | any;
+}
+
+interface PaginationProps {
+  productsPerPage: number;
+  totalProducts: number;
+  currentPage: number;
+  paginate: (pageNumber: number) => void;
 }
