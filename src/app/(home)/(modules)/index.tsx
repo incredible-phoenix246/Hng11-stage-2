@@ -510,6 +510,21 @@ const TopSellingSection = () => {
     resetOrStop();
   }, []);
 
+  const [products, setProduct] = useState<Product[]>([]);
+
+  const productsPerPage = 12;
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      startTransition(() => {
+        getProducts().then((res) => {
+          setProduct(res.products);
+        });
+      });
+    };
+    fetchProducts();
+  }, []);
+
   const {
     prevBtnDisabled,
     nextBtnDisabled,
@@ -542,8 +557,18 @@ const TopSellingSection = () => {
         <section className="embla">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container gap-4 py-3">
-              {dummyProducts.map((pd) => (
-                <ProductCard {...pd} key={pd.id} />
+              {products.map((pd) => (
+                <ProductCard
+                  name={pd.name}
+                  image={`http://api.timbu.cloud/images/${pd.photos[0].url}`}
+                  key={pd.id}
+                  price={pd.current_price[0].USD[0]}
+                  id={pd.id}
+                  rating={4}
+                  discount={5}
+                  desc={pd.description}
+                  category={pd.categories[0].name}
+                />
               ))}
             </div>
           </div>
@@ -558,6 +583,21 @@ const TopSellingSection = () => {
 };
 
 const TopFeaturedSection = () => {
+  const [products, setProduct] = useState<Product[]>([]);
+
+  const productsPerPage = 12;
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      startTransition(() => {
+        getProducts().then((res) => {
+          setProduct(res.products);
+        });
+      });
+    };
+    fetchProducts();
+  }, []);
+
   const ShopRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView({ ref: ShopRef, once: false });
   const OPTIONS: EmblaOptionsType = { dragFree: true, loop: true };
@@ -608,8 +648,18 @@ const TopFeaturedSection = () => {
         <section className="embla">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container gap-4 py-3">
-              {dummyProducts.map((pd) => (
-                <ProductCard {...pd} key={pd.id} />
+              {products.map((pd) => (
+                <ProductCard
+                  name={pd.name}
+                  image={`http://api.timbu.cloud/images/${pd.photos[0].url}`}
+                  key={pd.id}
+                  price={pd.current_price[0].USD[0]}
+                  id={pd.id}
+                  rating={4}
+                  discount={5}
+                  desc={pd.description}
+                  category={pd.categories[0].name}
+                />
               ))}
             </div>
           </div>
@@ -879,10 +929,10 @@ const CartPage = () => {
           {cart?.length > 0 ? (
             <div className="flex flex-col divide-y divide-primary w-full">
               {cart?.map((item) => {
-                const price = parseFloat(item.price.replace("$", "")); 
+                const price = parseFloat(item.price.replace("$", ""));
                 const discount = item.discount ? item.discount : 0;
-                const discountedPrice = price * (1 - discount / 100); 
-                const totalPrice = discountedPrice * item.quantity; 
+                const discountedPrice = price * (1 - discount / 100);
+                const totalPrice = discountedPrice * item.quantity;
 
                 return (
                   <div
