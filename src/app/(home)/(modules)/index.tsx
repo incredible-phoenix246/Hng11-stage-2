@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 "use client";
 
 import React, { useState, useEffect, useCallback, useTransition } from "react";
@@ -31,7 +29,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useStateCtx } from "@/context/StateCtx";
-import { dummyProducts } from "@/constant";
 import { setObjectToLocalStorage, getObjectFromLocalStorage } from "@/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useSearchParams } from "next/navigation";
@@ -512,7 +509,7 @@ const TopSellingSection = () => {
 
   const [products, setProduct] = useState<Product[]>([]);
 
-  const productsPerPage = 12;
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -560,7 +557,7 @@ const TopSellingSection = () => {
               {products.map((pd) => (
                 <ProductCard
                   name={pd.name}
-                  src={`http://api.timbu.cloud/images/${pd?.photos[0].url}`}
+                  image={`${pd.photos[0].url}`}
                   key={pd.id}
                   price={pd.current_price[0].USD[0]}
                   id={pd.id}
@@ -585,7 +582,7 @@ const TopSellingSection = () => {
 const TopFeaturedSection = () => {
   const [products, setProduct] = useState<Product[]>([]);
 
-  const productsPerPage = 12;
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -651,7 +648,7 @@ const TopFeaturedSection = () => {
               {products.map((pd) => (
                 <ProductCard
                   name={pd.name}
-                  src={`http://api.timbu.cloud/images/${pd?.photos[0].url}`}
+                  image={`${pd.photos[0].url}`}
                   key={pd.id}
                   price={pd.current_price[0].USD[0]}
                   id={pd.id}
@@ -709,15 +706,16 @@ const ProductDetails = () => {
     if (existingItemIndex !== -1) {
       cart[existingItemIndex].quantity += 1;
     } else {
-      // @ts-expect-error
       const newItem: Cart = {
+        // @ts-expect-error
         id: product.id,
+        // @ts-expect-error
         name: product.name,
         price: product.current_price
           ? product.current_price[0].USD
           : selectedProPrice,
         quantity: 1,
-        photos: product.photos[0].url,
+
         ...product,
       };
       cart.push(newItem);
@@ -782,7 +780,7 @@ const ProductDetails = () => {
             className="w-[215px] h-[62px] text-center mt-4"
             variant="secondary"
             onClick={() => {
-              addToCart(product);
+              addToCart(product!);
               toast({
                 title: "Product added to cart",
                 description: `${product?.name} has been added to cart`,
@@ -930,6 +928,7 @@ const CartPage = () => {
             <div className="flex flex-col divide-y divide-primary w-full">
               {cart?.map((item) => {
                 const price = parseFloat(item.price.replace("$", ""));
+                // @ts-expect-error
                 const discount = item.discount ? item.discount : 0;
                 const discountedPrice = price * (1 - discount / 100);
                 const totalPrice = discountedPrice * item.quantity;
